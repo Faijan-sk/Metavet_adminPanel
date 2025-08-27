@@ -31,7 +31,9 @@ const navigation = () => {
     {
       title: 'Doctor Mangement',
       icon: 'tabler:stethoscope',
-      path: '/doctorManagement'
+      path: '/doctorManagement',
+      action: 'read',
+      subject: 'doctor-management'
     },
     {
       title: 'Pet Mangement',

@@ -8,7 +8,7 @@ import { useRouter } from 'next/router'
 import axios from 'axios'
 
 // ** JWT Hook Import
-import useJwt from 'src/@core/auth/jwt/useJwt'
+import useJwt from 'src/enpoints/jwt/useJwt'
 
 // ** Config
 import authConfig from 'src/configs/auth'
@@ -34,50 +34,11 @@ const AuthProvider = ({ children }) => {
   // ** Hooks
   const router = useRouter()
 
-  // ** Get JWT instance
-  const { jwt } = useJwt({})
-
   // ** Setup Axios Interceptors
-  useEffect(() => {
-    // Request interceptor to add token to every API call
-    const requestInterceptor = axios.interceptors.request.use(
-      config => {
-        const token = window.localStorage.getItem(authConfig.storageTokenKeyName)
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`
-        }
-        return config
-      },
-      error => {
-        return Promise.reject(error)
-      }
-    )
-
-    // Response interceptor to handle token expiration
-    const responseInterceptor = axios.interceptors.response.use(
-      response => {
-        return response
-      },
-      error => {
-        if (error.response?.status === 401) {
-          // Token expired or invalid
-          console.log('🚨 Token expired or unauthorized, logging out...')
-          handleLogout()
-        }
-        return Promise.reject(error)
-      }
-    )
-
-    // Cleanup interceptors on unmount
-    return () => {
-      axios.interceptors.request.eject(requestInterceptor)
-      axios.interceptors.response.eject(responseInterceptor)
-    }
-  }, [])
 
   useEffect(() => {
     const initAuth = async () => {
-      const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)
+      const storedToken = window.localStorage.getItem('accessToken')
       const storedUser = window.localStorage.getItem('userData')
 
       console.log('🔍 InitAuth - Token:', storedToken ? 'Found' : 'Not found')
@@ -104,46 +65,46 @@ const AuthProvider = ({ children }) => {
           })
 
           // Then verify with server if meEndpoint exists
-          if (authConfig.meEndpoint) {
-            await axios
-              .get(authConfig.meEndpoint, {
-                headers: {
-                  Authorization: `Bearer ${storedToken}`
-                }
-              })
-              .then(async response => {
-                console.log('✅ Me endpoint response:', response.data)
+          // if (authConfig.meEndpoint) {
+          //   await axios
+          //     .get(authConfig.meEndpoint, {
+          //       headers: {
+          //         Authorization: `Bearer ${storedToken}`
+          //       }
+          //     })
+          //     .then(async response => {
+          //       console.log('✅ Me endpoint response:', response.data)
 
-                const serverUserData = {
-                  ...response.data.userData,
-                  role: response.data.userData.role || 'admin',
-                  permissions: response.data.userData.permissions || ['read', 'write']
-                }
+          //       const serverUserData = {
+          //         ...response.data.userData,
+          //         role: response.data.userData.role || 'admin',
+          //         permissions: response.data.userData.permissions || ['read', 'write']
+          //       }
 
-                setUser(serverUserData)
+          //       setUser(serverUserData)
 
-                // Update localStorage with fresh data
-                window.localStorage.setItem('userData', JSON.stringify(serverUserData))
-              })
-              .catch(error => {
-                console.error('❌ Me endpoint failed:', error)
+          //       // Update localStorage with fresh data
+          //       window.localStorage.setItem('userData', JSON.stringify(serverUserData))
+          //     })
+          //     .catch(error => {
+          //       console.error('❌ Me endpoint failed:', error)
 
-                // Don't logout if it's just a network error
-                if (error.response?.status === 401 || error.response?.status === 403) {
-                  console.log('🚨 Authentication failed, clearing storage')
-                  localStorage.removeItem('userData')
-                  localStorage.removeItem('refreshToken')
-                  localStorage.removeItem('accessToken')
-                  setUser(null)
+          //       // Don't logout if it's just a network error
+          //       if (error.response?.status === 401 || error.response?.status === 403) {
+          //         console.log('🚨 Authentication failed, clearing storage')
+          //         localStorage.removeItem('userData')
+          //         localStorage.removeItem('refreshToken')
+          //         localStorage.removeItem('accessToken')
+          //         setUser(null)
 
-                  if (authConfig.onTokenExpiration === 'logout' && !router.pathname.includes('login')) {
-                    router.replace('/login')
-                  }
-                } else {
-                  console.log('⚠️ Network error, keeping cached user data')
-                }
-              })
-          }
+          //         if (authConfig.onTokenExpiration === 'logout' && !router.pathname.includes('login')) {
+          //           router.replace('/login')
+          //         }
+          //       } else {
+          //         console.log('⚠️ Network error, keeping cached user data')
+          //       }
+          //     })
+          // }
         } catch (parseError) {
           console.error('❌ Error parsing stored user data:', parseError)
           localStorage.removeItem('userData')
@@ -163,23 +124,23 @@ const AuthProvider = ({ children }) => {
   }, [])
 
   const handleLogin = (params, errorCallback) => {
-    console.log('🚀 Login attempt with params:', params)
+    debugger
     setLoading(true)
 
-    jwt
+    useJwt
       .login({
         userName: params.userName,
         password: params.password
       })
       .then(res => {
         console.log('📨 JWT login response:', res)
-
+        debugger
         if (res.data.success) {
           const userData = {
             ...res.data.userData,
             // Ensure critical fields exist with fallbacks
             role: res.data.userData.role || 'admin',
-            permissions: res.data.userData.permissions || ['read', 'write', 'delete'],
+            permissions: res.data.userData.permission || ['read', 'write', 'delete'],
             id: res.data.userData.id || res.data.userData.userId || 1,
             fullName: res.data.userData.fullName || res.data.userData.name || 'User',
             username: res.data.userData.username || res.data.userData.userName || params.userName,
@@ -190,7 +151,7 @@ const AuthProvider = ({ children }) => {
           console.log('👤 Processed user data:', userData)
 
           // Store authentication data
-          window.localStorage.setItem(authConfig.storageTokenKeyName, res.data.accessToken)
+          window.localStorage.setItem('accessToken', res.data.accessToken)
           window.localStorage.setItem('userData', JSON.stringify(userData))
 
           // Store refresh token if provided

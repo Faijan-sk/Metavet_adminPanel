@@ -2,7 +2,7 @@ export default {
   1: [
     {
       subject: 'doctor-management',
-      action: 'view'
+      action: 'read'
     },
     {
       subject: 'doctor-management',

@@ -125,4 +125,23 @@ export default class JwtService {
   getAllDoctors() {
     return axios.get(this.jwtConfig.getAllDoctorEndPoint)
   }
+  getPendingDoctor() {
+    return axios
+      .get(this.jwtConfig.getPendingDoctorEndPoint)
+      .then(response => response.data)
+      .catch(error => {
+        console.error('Error fetching pending doctors:', error)
+        throw error
+      })
+  }
+
+  getApprovedDoctor() {
+    return axios
+      .get(this.jwtConfig.getApprovedDoctorEndPoint)
+      .then(response => response.data)
+      .catch(error => {
+        console.error('Error fetching approved doctors:', error)
+        throw error
+      })
+  }
 }

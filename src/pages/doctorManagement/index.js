@@ -7,7 +7,7 @@ function index() {
 }
 
 index.acl = {
-  action: 'view',
+  action: 'read',
   subject: 'doctor-management'
 }
 

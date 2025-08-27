@@ -90,8 +90,8 @@ const schema = yup.object().shape({
 })
 
 const defaultValues = {
-  password: 'securePassword123',
-  userName: 'johndoe'
+  password: 'Rohit123',
+  userName: 'rohit'
 }
 
 const LoginPage = () => {
