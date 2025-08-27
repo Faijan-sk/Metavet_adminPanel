@@ -115,7 +115,6 @@ const AuthProvider = ({ children }) => {
           setLoading(false)
         }
       } else {
-        console.log('📝 No stored auth data found')
         setLoading(false)
       }
     }
@@ -124,7 +123,6 @@ const AuthProvider = ({ children }) => {
   }, [])
 
   const handleLogin = (params, errorCallback) => {
-    debugger
     setLoading(true)
 
     useJwt
@@ -133,8 +131,6 @@ const AuthProvider = ({ children }) => {
         password: params.password
       })
       .then(res => {
-        console.log('📨 JWT login response:', res)
-        debugger
         if (res.data.success) {
           const userData = {
             ...res.data.userData,

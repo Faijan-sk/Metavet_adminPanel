@@ -13,61 +13,27 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
+import Button from '@mui/material/Button'
 
+// Table Columns
 const columns = [
   { id: 'name', label: 'Name', minWidth: 170 },
-  { id: 'code', label: 'ISO\u00a0Code', minWidth: 100 },
-  {
-    id: 'population',
-    label: 'Population',
-    minWidth: 170,
-    align: 'right',
-    format: value => value.toLocaleString('en-US')
-  },
-  {
-    id: 'size',
-    label: 'Size\u00a0(km\u00b2)',
-    minWidth: 170,
-    align: 'right',
-    format: value => value.toLocaleString('en-US')
-  },
-  {
-    id: 'density',
-    label: 'Density',
-    minWidth: 170,
-    align: 'right',
-    format: value => value.toFixed(2)
-  }
-]
-function createData(name, code, population, size) {
-  const density = population / size
-
-  return { name, code, population, size, density }
-}
-
-const rows = [
-  createData('India', 'IN', 1324171354, 3287263),
-  createData('China', 'CN', 1403500365, 9596961),
-  createData('Italy', 'IT', 60483973, 301340),
-  createData('United States', 'US', 327167434, 9833520),
-  createData('Canada', 'CA', 37602103, 9984670),
-  createData('Australia', 'AU', 25475400, 7692024),
-  createData('Germany', 'DE', 83019200, 357578),
-  createData('Ireland', 'IE', 4857000, 70273),
-  createData('Mexico', 'MX', 126577691, 1972550),
-  createData('Japan', 'JP', 126317000, 377973),
-  createData('France', 'FR', 67022000, 640679),
-  createData('United Kingdom', 'GB', 67545757, 242495),
-  createData('Russia', 'RU', 146793744, 17098246),
-  createData('Nigeria', 'NG', 200962417, 923768),
-  createData('Brazil', 'BR', 210147125, 8515767)
+  { id: 'licenseNumber', label: 'License Number', minWidth: 150 },
+  { id: 'specialization', label: 'Speciality', minWidth: 170 },
+  { id: 'experienceYears', label: 'Experience (Years)', minWidth: 150, align: 'center' },
+  { id: 'appointmentStatus', label: 'Status', minWidth: 120, align: 'center' },
+  { id: 'action', label: 'Action', minWidth: 100, align: 'center' }
 ]
 
 const TableStickyHeader = () => {
   // ** States
+  const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [pendingDoctors, setPendingDoctors] = useState([])
+
+  const [error, setError] = useState('')
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage)
   }
@@ -78,17 +44,25 @@ const TableStickyHeader = () => {
   }
 
   useEffect(() => {
-    const fetchPendingDoctors = async () => {
+    const fetchDoctors = async () => {
       try {
-        const response = await useJwt.getPendingDoctor()
-        setPendingDoctors(response) // response.data if you're returning the whole response
-      } catch (err) {
-        console.error('Error fetching pending doctors:', err)
+        setLoading(true)
+        setError(null)
+
+        const { data } = await useJwt.getPendingDoctor()
+
+        setPendingDoctors(data || [])
+      } catch (error) {
+        console.error('Error fetching doctors:', error)
+        setError(error.message || 'Failed to fetch doctors')
+      } finally {
+        setLoading(false)
       }
     }
-
-    fetchPendingDoctors()
+    fetchDoctors()
   }, [])
+
+  console.log('the pending donctor ist :', pendingDoctors)
 
   return (
     <>
@@ -97,35 +71,52 @@ const TableStickyHeader = () => {
           <TableHead>
             <TableRow>
               {columns.map(column => (
-                <TableCell key={column.id} align={column.align} sx={{ minWidth: column.minWidth }}>
+                <TableCell key={column.id} align={column.align || 'left'} sx={{ minWidth: column.minWidth }}>
                   {column.label}
                 </TableCell>
               ))}
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => {
-              return (
-                <TableRow hover role='checkbox' tabIndex={-1} key={row.code}>
-                  {columns.map(column => {
-                    const value = row[column.id]
-
-                    return (
-                      <TableCell key={column.id} align={column.align}>
-                        {column.format && typeof value === 'number' ? column.format(value) : value}
-                      </TableCell>
-                    )
-                  })}
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={6} align='center'>
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : error ? (
+              <TableRow>
+                <TableCell colSpan={6} align='center' sx={{ color: 'red' }}>
+                  {error}
+                </TableCell>
+              </TableRow>
+            ) : pendingDoctors.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} align='center'>
+                  No Doctors Found
+                </TableCell>
+              </TableRow>
+            ) : (
+              pendingDoctors.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(doctor => (
+                <TableRow hover key={doctor.doctorId}>
+                  <TableCell>
+                    {doctor.user?.firstName} {doctor.user?.lastName}
+                  </TableCell>
+                  <TableCell>{doctor.licenseNumber}</TableCell>
+                  <TableCell>{doctor.specialization}</TableCell>
+                  <TableCell align='center'>{doctor.experienceYears}</TableCell>
+                  <TableCell align='center'>{doctor.appointmentStatus}</TableCell>
+                  <TableCell align='center'></TableCell>
                 </TableRow>
-              )
-            })}
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component='div'
-        count={rows.length}
+        count={pendingDoctors.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
