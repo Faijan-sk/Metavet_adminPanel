@@ -53,10 +53,26 @@ function Index({ doctorId }) {
   const [openEdit, setOpenEdit] = useState(false)
   const [suspendDialogOpen, setSuspendDialogOpen] = useState(false)
   const [subscriptionDialogOpen, setSubscriptionDialogOpen] = useState(false)
+  const [approving, setApproving] = useState(false) // <-- new state for API loading
 
   // Handle Edit dialog
   const handleEditClickOpen = () => setOpenEdit(true)
   const handleEditClose = () => setOpenEdit(false)
+
+  // Approve Doctor
+  const handleApprove = async () => {
+    try {
+      setApproving(true)
+      await useJwt.updateDoctorStatus(doctor.id, 'APPROVED') // 👈 API call
+      setDoctor(prev => ({ ...prev, status: 'approved' })) // update local state
+      handleEditClose()
+    } catch (err) {
+      console.error(err)
+      alert('Failed to approve doctor')
+    } finally {
+      setApproving(false)
+    }
+  }
 
   // Fetch doctor details
   useEffect(() => {
@@ -88,7 +104,7 @@ function Index({ doctorId }) {
             address: doc.address,
             consultationFees: doc.consultationFee,
             bio: doc.bio,
-            avatar: null // agar API me avatar nahi aa raha to null rakha
+            avatar: null
           })
         } else {
           setDoctor(null)
@@ -112,6 +128,7 @@ function Index({ doctorId }) {
       <Grid container spacing={6}>
         <Grid item xs={12}>
           <Card>
+            {/* Avatar + Basic Info */}
             <CardContent sx={{ pt: 13.5, display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
               {doctor.avatar ? (
                 <CustomAvatar
@@ -145,29 +162,6 @@ function Index({ doctorId }) {
                 sx={{ textTransform: 'capitalize' }}
               />
             </CardContent>
-
-            {/* <CardContent sx={{ pt: theme => `${theme.spacing(2)} !important` }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Box sx={{ mr: 8, display: 'flex', alignItems: 'center' }}>
-                    <CustomAvatar skin='light' variant='rounded' sx={{ mr: 2.5, width: 48, height: 48 }}>
-                      <Icon fontSize='1.75rem' icon='tabler:checkbox' />
-                    </CustomAvatar>
-                    <div>
-                      <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>1.23k</Typography>
-                      <Typography variant='body2'>Task Done</Typography>
-                    </div>
-                  </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <CustomAvatar skin='light' variant='rounded' sx={{ mr: 2.5, width: 38, height: 38 }}>
-                      <Icon fontSize='1.75rem' icon='tabler:briefcase' />
-                    </CustomAvatar>
-                    <div>
-                      <Typography sx={{ fontWeight: 500, color: 'text.secondary' }}>568</Typography>
-                      <Typography variant='body2'>Project Done</Typography>
-                    </div>
-                  </Box>
-                </Box>
-              </CardContent> */}
 
             <Divider sx={{ my: '0 !important', mx: 6 }} />
 
@@ -257,7 +251,7 @@ function Index({ doctorId }) {
               </Button>
             </CardActions>
 
-            {/* Edit Dialog */}
+            {/* Approve Dialog */}
             <Dialog
               open={openEdit}
               onClose={handleEditClose}
@@ -299,8 +293,8 @@ function Index({ doctorId }) {
                   pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
                 }}
               >
-                <Button variant='contained' sx={{ mr: 2 }}>
-                  Yes, Approve
+                <Button variant='contained' sx={{ mr: 2 }} onClick={handleApprove} disabled={approving}>
+                  {approving ? 'Approving...' : 'Yes, Approve'}
                 </Button>
                 <Button variant='outlined' color='secondary' onClick={handleEditClose}>
                   Cancel

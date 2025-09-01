@@ -156,4 +156,13 @@ export default class JwtService {
         throw error
       })
   }
+  updateDoctorStatus(doctorId, status) {
+    return axios
+      .put(`/auth/doctors/${doctorId}/status`, { status })
+      .then(res => res.data)
+      .catch(err => {
+        console.error('Error updating doctor status:', err)
+        throw err
+      })
+  }
 }
