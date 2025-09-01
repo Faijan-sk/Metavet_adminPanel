@@ -11,6 +11,7 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
+import Button from '@mui/material/Button'
 
 const TableStickyHeader = () => {
   // ** States
@@ -90,8 +91,12 @@ const TableStickyHeader = () => {
                   <TableCell>{doctor.licenseNumber}</TableCell>
                   <TableCell>{doctor.email}</TableCell>
                   <TableCell>{doctor.phoneNumber}</TableCell>
-                  <TableCell>{doctor.appointmentStatus}</TableCell>
-                  <TableCell align='right'></TableCell>
+                  <TableCell>{doctor.doctorProfileStatus}</TableCell>
+                  <TableCell align='right'>
+                    <Button variant='text' size='small'>
+                      View
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))
             )}

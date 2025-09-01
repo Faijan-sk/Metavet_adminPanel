@@ -1,5 +1,6 @@
 // ** React Imports
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router' // ✅ Next.js router
 
 // ** JWT Hook Import
 import useJwt from 'src/enpoints/jwt/useJwt'
@@ -26,12 +27,13 @@ const columns = [
 ]
 
 const TableStickyHeader = () => {
+  const router = useRouter() // ✅ Next.js navigation hook
+
   // ** States
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [pendingDoctors, setPendingDoctors] = useState([])
-
   const [error, setError] = useState('')
 
   const handleChangePage = (event, newPage) => {
@@ -50,7 +52,6 @@ const TableStickyHeader = () => {
         setError(null)
 
         const { data } = await useJwt.getPendingDoctor()
-
         setPendingDoctors(data || [])
       } catch (error) {
         console.error('Error fetching doctors:', error)
@@ -62,7 +63,10 @@ const TableStickyHeader = () => {
     fetchDoctors()
   }, [])
 
-  console.log('the pending donctor ist :', pendingDoctors)
+  // ✅ Navigate to doctor profile page
+  const handleViewDoctor = doctorId => {
+    router.push(`/doctorManagement/doctorProfile/${doctorId}`)
+  }
 
   return (
     <>
@@ -105,8 +109,16 @@ const TableStickyHeader = () => {
                   <TableCell>{doctor.licenseNumber}</TableCell>
                   <TableCell>{doctor.specialization}</TableCell>
                   <TableCell align='center'>{doctor.experienceYears}</TableCell>
-                  <TableCell align='center'>{doctor.appointmentStatus}</TableCell>
-                  <TableCell align='center'></TableCell>
+                  <TableCell align='center'>{doctor.doctorProfileStatus}</TableCell>
+                  <TableCell align='center'>
+                    <Button
+                      variant='text'
+                      size='small'
+                      onClick={() => handleViewDoctor(doctor.doctorId)} // ✅ Navigate with doctorId
+                    >
+                      View
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))
             )}

@@ -144,4 +144,16 @@ export default class JwtService {
         throw error
       })
   }
+
+  getDoctorById(doctorId) {
+    const endpoint = this.jwtConfig.getDoctorByIdEndPoint.replace('{doctorId}', doctorId)
+
+    return axios
+      .get(endpoint)
+      .then(response => response.data)
+      .catch(error => {
+        console.error('Error fetching doctor by ID:', error)
+        throw error
+      })
+  }
 }
