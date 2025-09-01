@@ -52,7 +52,15 @@ const TableStickyHeader = () => {
         setError(null)
 
         const { data } = await useJwt.getPendingDoctor()
-        setPendingDoctors(data || [])
+
+        // ✅ Sort doctors by updatedAt (fallback: createdAt), newest first
+        const sortedDoctors = (data || []).sort((a, b) => {
+          const dateA = new Date(a.updatedAt || a.createdAt)
+          const dateB = new Date(b.updatedAt || b.createdAt)
+          return dateB - dateA
+        })
+
+        setPendingDoctors(sortedDoctors)
       } catch (error) {
         console.error('Error fetching doctors:', error)
         setError(error.message || 'Failed to fetch doctors')

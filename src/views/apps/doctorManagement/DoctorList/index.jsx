@@ -42,7 +42,15 @@ const TableStickyHeader = () => {
         setError(null)
 
         const { data } = await useJwt.getAllDoctors()
-        setDoctors(data.data || [])
+
+        // Sort doctors by updatedAt (if null then createdAt), newest first
+        const sortedDoctors = (data.data || []).sort((a, b) => {
+          const dateA = new Date(a.updatedAt || a.createdAt)
+          const dateB = new Date(b.updatedAt || b.createdAt)
+          return dateB - dateA // latest first
+        })
+
+        setDoctors(sortedDoctors)
       } catch (error) {
         console.error('Error fetching doctors:', error)
         setError(error.message || 'Failed to fetch doctors')
@@ -54,7 +62,6 @@ const TableStickyHeader = () => {
   }, [])
 
   const handleViewDoctor = doctorId => {
-    debugger
     router.push(`/doctorManagement/doctorProfile/${doctorId}`)
   }
 
