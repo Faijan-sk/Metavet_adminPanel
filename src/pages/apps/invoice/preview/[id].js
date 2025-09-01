@@ -9,8 +9,10 @@ const InvoicePreview = ({ id }) => {
 }
 
 export const getStaticPaths = async () => {
-  const res = await axios.get('/apps/invoice/invoices')
-  const data = await res.data.allData
+  // const res = await axios.get('/apps/invoice/invoices')
+  // const data = await res.data.allData
+
+  const data = []
 
   const paths = data.map(item => ({
     params: { id: `${item.id}` }

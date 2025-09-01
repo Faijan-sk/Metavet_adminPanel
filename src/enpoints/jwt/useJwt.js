@@ -1,5 +1,6 @@
-import useJwt from '../../@core/auth/jwt/useJwt'
+import JwtService from '../../@core/auth/jwt/jwtService'
 
-const { jwt } = useJwt({})
+// Create a single shared instance of JwtService
+const jwt = new JwtService({})
 
 export default jwt

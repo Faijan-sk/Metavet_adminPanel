@@ -8,17 +8,20 @@ axios.defaults.baseURL = 'http://localhost:8010/'
 export default class JwtService {
   // ** jwtConfig <= Will be used by this service
   jwtConfig = { ...jwtDefaultConfig }
+
   // ** For Refreshing Token
   isAlreadyFetchingAccessToken = false
+
   // ** For Refreshing Token
   subscribers = []
+
   constructor(jwtOverrideConfig) {
     this.jwtConfig = { ...this.jwtConfig, ...jwtOverrideConfig }
 
     // ** Request Interceptor
     axios.interceptors.request.use(
       config => {
-        // ** Get token from localStorage
+        // ** Get token from window.localStorage
         const accessToken = this.getToken()
 
         // ** If token is present add it to request's Authorization Header
@@ -26,6 +29,7 @@ export default class JwtService {
           // ** eslint-disable-next-line no-param-reassign
           config.headers.Authorization = `${this.jwtConfig.tokenType} ${accessToken}`
         }
+
         return config
       },
       error => Promise.reject(error)
@@ -42,7 +46,7 @@ export default class JwtService {
         // ** if (status === 401) {
         // if (response && response.status === 401) {
         //   if (window.location.pathname !== '/admin-panel/login') {
-        //     localStorage.removeItem('userData')
+        //     window.localStorage.removeItem('userData')
         //     window.location.href = '/admin-panel/login'
         //     return Promise.reject(error)
         //   }
@@ -50,7 +54,7 @@ export default class JwtService {
         //     this.isAlreadyFetchingAccessToken = true
         //     this.refreshToken().then((r) => {
         //       this.isAlreadyFetchingAccessToken = false
-        //       // ** Update accessToken in localStorage
+        //       // ** Update accessToken in window.localStorage
         //       this.setToken(r.data.accessToken)
         //       this.setRefreshToken(r.data.refreshToken)
         //       this.onAccessTokenFetched(r.data.accessToken)
@@ -67,6 +71,7 @@ export default class JwtService {
         //   })
         //   return retryOriginalRequest
         // }
+
         return Promise.reject(error)
       }
     )
@@ -81,31 +86,32 @@ export default class JwtService {
   }
 
   getToken() {
-    return localStorage.getItem(this.jwtConfig.storageTokenKeyName)
+    if (typeof window === 'undefined') return null
+
+    return window.localStorage.getItem(this.jwtConfig.storageTokenKeyName)
   }
 
   getRefreshToken() {
-    return localStorage.getItem(this.jwtConfig.storageRefreshTokenKeyName)
+    if (typeof window === 'undefined') return null
+
+    return window.localStorage.getItem(this.jwtConfig.storageRefreshTokenKeyName)
   }
 
   setToken(value) {
-    localStorage.setItem(this.jwtConfig.storageTokenKeyName, value)
+    if (typeof window === 'undefined') return
+
+    window.localStorage.setItem(this.jwtConfig.storageTokenKeyName, value)
   }
 
   setRefreshToken(value) {
-    localStorage.setItem(this.jwtConfig.storageRefreshTokenKeyName, value)
-  }
+    if (typeof window === 'undefined') return
 
-  refreshToken() {
-    return axios.post(this.jwtConfig.refreshEndpoint, {
-      refreshToken: this.getRefreshToken()
-    })
+    window.localStorage.setItem(this.jwtConfig.storageRefreshTokenKeyName, value)
   }
 
   /*
    *     User Services
    */
-
   register(...args) {
     return axios.post(this.jwtConfig.registerEndpoint, ...args)
   }
@@ -125,12 +131,14 @@ export default class JwtService {
   getAllDoctors() {
     return axios.get(this.jwtConfig.getAllDoctorEndPoint)
   }
+
   getPendingDoctor() {
     return axios
       .get(this.jwtConfig.getPendingDoctorEndPoint)
       .then(response => response.data)
       .catch(error => {
         console.error('Error fetching pending doctors:', error)
+
         throw error
       })
   }
@@ -141,6 +149,7 @@ export default class JwtService {
       .then(response => response.data)
       .catch(error => {
         console.error('Error fetching approved doctors:', error)
+
         throw error
       })
   }
@@ -153,15 +162,18 @@ export default class JwtService {
       .then(response => response.data)
       .catch(error => {
         console.error('Error fetching doctor by ID:', error)
+
         throw error
       })
   }
+
   updateDoctorStatus(doctorId, status) {
     return axios
       .put(`/auth/doctors/${doctorId}/status`, { status })
       .then(res => res.data)
       .catch(err => {
         console.error('Error updating doctor status:', err)
+
         throw err
       })
   }

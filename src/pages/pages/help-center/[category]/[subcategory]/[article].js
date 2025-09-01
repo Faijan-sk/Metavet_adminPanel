@@ -15,20 +15,22 @@ const HelpCenterArticlePage = ({ apiData }) => {
 }
 
 export const getStaticPaths = async () => {
-  const res = await axios.get('/pages/help-center/article', {
-    params: { category: 'getting-started' }
-  })
-  const apiData = await res.data
+  // const res = await axios.get('/pages/help-center/article', {
+  //   params: { category: 'getting-started' }
+  // })
+  // const apiData = await res.data
+
   const paths = []
-  apiData.categories.forEach(category =>
-    category.subCategories.forEach(subcategory =>
-      subcategory.articles.forEach(article => {
-        paths.push({
-          params: { category: `${category.slug}`, subcategory: `${subcategory.slug}`, article: `${article.slug}` }
-        })
-      })
-    )
-  )
+
+  // apiData.categories.forEach(category =>
+  //   category.subCategories.forEach(subcategory =>
+  //     subcategory.articles.forEach(article => {
+  //       paths.push({
+  //         params: { category: `${category.slug}`, subcategory: `${subcategory.slug}`, article: `${article.slug}` }
+  //       })
+  //     })
+  //   )
+  // )
 
   return {
     paths,

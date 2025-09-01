@@ -2,8 +2,8 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router' // ✅ Next.js router
 
-// ** JWT Hook Import
-import useJwt from 'src/enpoints/jwt/useJwt'
+// ** JWT Service Import
+import jwt from 'src/enpoints/jwt/useJwt'
 
 // ** MUI Imports
 import Paper from '@mui/material/Paper'
@@ -16,7 +16,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 import Button from '@mui/material/Button'
 
-// Table Columns
+// ** Table Columns
 const columns = [
   { id: 'name', label: 'Name', minWidth: 170 },
   { id: 'licenseNumber', label: 'License Number', minWidth: 150 },
@@ -51,23 +51,26 @@ const TableStickyHeader = () => {
         setLoading(true)
         setError(null)
 
-        const { data } = await useJwt.getPendingDoctor()
+        const { data } = await jwt.getPendingDoctor()
 
         // ✅ Sort doctors by updatedAt (fallback: createdAt), newest first
         const sortedDoctors = (data || []).sort((a, b) => {
           const dateA = new Date(a.updatedAt || a.createdAt)
           const dateB = new Date(b.updatedAt || b.createdAt)
+
           return dateB - dateA
         })
 
         setPendingDoctors(sortedDoctors)
       } catch (error) {
         console.error('Error fetching doctors:', error)
+
         setError(error.message || 'Failed to fetch doctors')
       } finally {
         setLoading(false)
       }
     }
+
     fetchDoctors()
   }, [])
 

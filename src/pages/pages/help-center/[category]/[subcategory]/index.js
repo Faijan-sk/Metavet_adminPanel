@@ -9,16 +9,18 @@ const HelpCenterSubcategoryPage = ({ apiData }) => {
 }
 
 export const getStaticPaths = async () => {
-  const res = await axios.get('/pages/help-center/subcategory', {
-    params: { category: 'getting-started' }
-  })
-  const apiData = await res.data
+  // const res = await axios.get('/pages/help-center/subcategory', {
+  //   params: { category: 'getting-started' }
+  // })
+  // const apiData = await res.data
+
   const paths = []
-  apiData.categories.forEach(category =>
-    category.subCategories.forEach(subcategory => {
-      paths.push({ params: { category: `${category.slug}`, subcategory: `${subcategory.slug}` } })
-    })
-  )
+
+  // apiData.categories.forEach(category =>
+  //   category.subCategories.forEach(subcategory => {
+  //     paths.push({ params: { category: `${category.slug}`, subcategory: `${subcategory.slug}` } })
+  //   })
+  // )
 
   return {
     paths,

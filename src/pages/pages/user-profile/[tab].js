@@ -21,8 +21,8 @@ export const getStaticPaths = () => {
 }
 
 export const getStaticProps = async ({ params }) => {
-  const res = await axios.get('/pages/profile', { params: { tab: params?.tab } })
-  const data = res.data
+  // const res = await axios.get('/pages/profile', { params: { tab: params?.tab } })
+  const data = []
 
   return {
     props: {

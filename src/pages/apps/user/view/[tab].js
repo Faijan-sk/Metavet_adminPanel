@@ -22,8 +22,9 @@ export const getStaticPaths = () => {
 }
 
 export const getStaticProps = async ({ params }) => {
-  const res = await axios.get('/apps/invoice/invoices')
-  const invoiceData = res.data.allData
+  // const res = await axios.get('/apps/invoice/invoices')
+  // const invoiceData = res.data.allData
+  const invoiceData = []
 
   return {
     props: {
