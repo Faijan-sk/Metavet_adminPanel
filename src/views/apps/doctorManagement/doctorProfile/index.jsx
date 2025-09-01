@@ -31,6 +31,9 @@ import { getInitials } from 'src/@core/utils/get-initials'
 // ** JWT Hook Import
 import useJwt from 'src/enpoints/jwt/useJwt'
 
+// ** Next.js Router
+import { useRouter } from 'next/router'
+
 const roleColors = {
   admin: 'error',
   editor: 'info',
@@ -56,6 +59,8 @@ function Index({ doctorId }) {
   const [subscriptionDialogOpen, setSubscriptionDialogOpen] = useState(false)
   const [approving, setApproving] = useState(false) // <-- API loading state
 
+  const router = useRouter() // 👈 router instance
+
   // Handle Edit dialog
   const handleEditClickOpen = () => setOpenEdit(true)
   const handleEditClose = () => setOpenEdit(false)
@@ -67,6 +72,8 @@ function Index({ doctorId }) {
       await useJwt.updateDoctorStatus(doctor.id, 'APPROVED') // 👈 API call
       setDoctor(prev => ({ ...prev, status: 'approved' }))
       handleEditClose()
+      router.push('/doctorManagement') // 👈 redirect
+      router.reload() // 👈 refresh page
     } catch (err) {
       console.error(err)
       alert('Failed to approve doctor')
@@ -82,6 +89,8 @@ function Index({ doctorId }) {
       await useJwt.updateDoctorStatus(doctor.id, 'REJECTED') // 👈 API call
       setDoctor(prev => ({ ...prev, status: 'reject' }))
       setRejectDialogOpen(false)
+      router.push('/doctorManagement') // 👈 redirect
+      router.reload() // 👈 refresh page
     } catch (err) {
       console.error(err)
       alert('Failed to reject doctor')
