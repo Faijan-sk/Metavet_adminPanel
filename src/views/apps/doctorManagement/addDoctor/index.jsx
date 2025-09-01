@@ -27,7 +27,7 @@ const MUITable = () => {
 
       <Grid item xs={12}>
         <Card>
-          <CardHeader title='Pending Doctor List' />
+          <CardHeader title='Pending Doctors List' />
           <TableStickyHeader />
         </Card>
       </Grid>

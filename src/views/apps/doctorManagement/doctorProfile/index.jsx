@@ -51,9 +51,10 @@ function Index({ doctorId }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [openEdit, setOpenEdit] = useState(false)
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
   const [suspendDialogOpen, setSuspendDialogOpen] = useState(false)
   const [subscriptionDialogOpen, setSubscriptionDialogOpen] = useState(false)
-  const [approving, setApproving] = useState(false) // <-- new state for API loading
+  const [approving, setApproving] = useState(false) // <-- API loading state
 
   // Handle Edit dialog
   const handleEditClickOpen = () => setOpenEdit(true)
@@ -64,11 +65,26 @@ function Index({ doctorId }) {
     try {
       setApproving(true)
       await useJwt.updateDoctorStatus(doctor.id, 'APPROVED') // 👈 API call
-      setDoctor(prev => ({ ...prev, status: 'approved' })) // update local state
+      setDoctor(prev => ({ ...prev, status: 'approved' }))
       handleEditClose()
     } catch (err) {
       console.error(err)
       alert('Failed to approve doctor')
+    } finally {
+      setApproving(false)
+    }
+  }
+
+  // Reject Doctor
+  const handleReject = async () => {
+    try {
+      setApproving(true)
+      await useJwt.updateDoctorStatus(doctor.id, 'REJECTED') // 👈 API call
+      setDoctor(prev => ({ ...prev, status: 'reject' }))
+      setRejectDialogOpen(false)
+    } catch (err) {
+      console.error(err)
+      alert('Failed to reject doctor')
     } finally {
       setApproving(false)
     }
@@ -246,7 +262,7 @@ function Index({ doctorId }) {
               <Button variant='contained' sx={{ mr: 2 }} onClick={handleEditClickOpen}>
                 Approve
               </Button>
-              <Button color='error' variant='outlined' onClick={() => setSuspendDialogOpen(true)}>
+              <Button color='error' variant='outlined' onClick={() => setRejectDialogOpen(true)}>
                 Reject
               </Button>
             </CardActions>
@@ -297,6 +313,61 @@ function Index({ doctorId }) {
                   {approving ? 'Approving...' : 'Yes, Approve'}
                 </Button>
                 <Button variant='outlined' color='secondary' onClick={handleEditClose}>
+                  Cancel
+                </Button>
+              </DialogActions>
+            </Dialog>
+
+            {/* Reject Dialog */}
+            <Dialog
+              open={rejectDialogOpen}
+              onClose={() => setRejectDialogOpen(false)}
+              aria-labelledby='user-view-reject'
+              aria-describedby='user-view-reject-description'
+              sx={{ '& .MuiPaper-root': { width: '100%', maxWidth: 650 } }}
+            >
+              <DialogTitle
+                id='user-view-reject'
+                sx={{
+                  textAlign: 'center',
+                  fontSize: '1.5rem !important',
+                  px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
+                  pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
+                }}
+              >
+                Reject Doctor
+              </DialogTitle>
+
+              <DialogContent
+                sx={{
+                  pb: theme => `${theme.spacing(8)} !important`,
+                  px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`]
+                }}
+              >
+                <DialogContentText
+                  variant='body2'
+                  id='user-view-reject-description'
+                  sx={{ textAlign: 'center', mb: 7 }}
+                >
+                  Are you sure you want to reject doctor{' '}
+                  <Typography component='span' sx={{ fontWeight: 'bold', color: 'error.main' }}>
+                    {doctor.firstName} {doctor.lastName}
+                  </Typography>
+                  ?
+                </DialogContentText>
+              </DialogContent>
+
+              <DialogActions
+                sx={{
+                  justifyContent: 'center',
+                  px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
+                  pb: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
+                }}
+              >
+                <Button variant='contained' color='error' sx={{ mr: 2 }} onClick={handleReject} disabled={approving}>
+                  {approving ? 'Rejecting...' : 'Yes, Reject'}
+                </Button>
+                <Button variant='outlined' color='secondary' onClick={() => setRejectDialogOpen(false)}>
                   Cancel
                 </Button>
               </DialogActions>

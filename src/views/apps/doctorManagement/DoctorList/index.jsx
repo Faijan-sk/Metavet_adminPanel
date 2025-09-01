@@ -12,6 +12,7 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 import Button from '@mui/material/Button'
+import { useRouter } from 'next/router'
 
 const TableStickyHeader = () => {
   // ** States
@@ -21,6 +22,9 @@ const TableStickyHeader = () => {
   const [doctors, setDoctors] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  // ** Hooks
+  const router = useRouter()
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage)
@@ -48,6 +52,11 @@ const TableStickyHeader = () => {
     }
     fetchDoctors()
   }, [])
+
+  const handleViewDoctor = doctorId => {
+    debugger
+    router.push(`/doctorManagement/doctorProfile/${doctorId}`)
+  }
 
   return (
     <>
@@ -93,7 +102,7 @@ const TableStickyHeader = () => {
                   <TableCell>{doctor.phoneNumber}</TableCell>
                   <TableCell>{doctor.doctorProfileStatus}</TableCell>
                   <TableCell align='right'>
-                    <Button variant='text' size='small'>
+                    <Button variant='text' size='small' onClick={() => handleViewDoctor(doctor.doctorId)}>
                       View
                     </Button>
                   </TableCell>
