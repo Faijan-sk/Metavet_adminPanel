@@ -177,7 +177,7 @@ const LoginWithAppBar = () => {
                 Login
               </Button>
               <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-                <Typography sx={{ color: 'text.secondary', mr: 2 }}>New on our platform?</Typography>
+                {/* <Typography sx={{ color: 'text.secondary', mr: 2 }}>New on our platform?</Typography> */}
                 <Typography>
                   <LinkStyled href='/pages/auth/register-v2' sx={{ fontSize: '1rem' }}>
                     Create an account

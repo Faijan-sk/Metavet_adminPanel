@@ -283,10 +283,10 @@ const LoginPage = () => {
                 Login
               </Button>
               <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-                <Typography sx={{ color: 'text.secondary', mr: 2 }}>New on our platform?</Typography>
+                {/* <Typography sx={{ color: 'text.secondary', mr: 2 }}>New on our platform?</Typography> */}
                 <Typography variant='body2'>
                   <LinkStyled href='/register' sx={{ fontSize: '1rem' }}>
-                    Create an account
+                    {/* Create an account */}
                   </LinkStyled>
                 </Typography>
               </Box>
