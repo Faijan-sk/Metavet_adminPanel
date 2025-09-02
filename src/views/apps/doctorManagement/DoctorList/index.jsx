@@ -76,7 +76,7 @@ const TableStickyHeader = () => {
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
-              <TableCell>License Number</TableCell>
+              <TableCell>Specialization</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Phone Number</TableCell>
               <TableCell>Status</TableCell>
@@ -108,7 +108,7 @@ const TableStickyHeader = () => {
                   <TableCell>
                     {doctor.firstName} {doctor.lastName}
                   </TableCell>
-                  <TableCell>{doctor.licenseNumber}</TableCell>
+                  <TableCell>{doctor.specialization}</TableCell>
                   <TableCell>{doctor.email}</TableCell>
                   <TableCell>{doctor.phoneNumber}</TableCell>
                   <TableCell>{doctor.doctorProfileStatus}</TableCell>

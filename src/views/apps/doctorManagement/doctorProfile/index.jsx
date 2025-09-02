@@ -73,7 +73,6 @@ function Index({ doctorId }) {
       setDoctor(prev => ({ ...prev, status: 'approved' }))
       handleEditClose()
       router.push('/doctorManagement') // 👈 redirect
-      router.reload() // 👈 refresh page
     } catch (err) {
       console.error(err)
       alert('Failed to approve doctor')
@@ -90,7 +89,6 @@ function Index({ doctorId }) {
       setDoctor(prev => ({ ...prev, status: 'reject' }))
       setRejectDialogOpen(false)
       router.push('/doctorManagement') // 👈 redirect
-      router.reload() // 👈 refresh page
     } catch (err) {
       console.error(err)
       alert('Failed to reject doctor')

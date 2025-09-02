@@ -11,10 +11,10 @@ export default {
    * Doctor EndPoints
    */
   getAllDoctorEndPoint: '/auth/admin/doctors',
-  getPendingDoctorEndPoint: '/auth/doctors/status/PENDING',
+  getPendingDoctorEndPoint: '/api/doctors/status/PENDING',
   getApprovedDoctorEndPoint: '/api/doctors/appointment-status/APPROVED',
-  getDoctorByIdEndPoint: 'auth/doctors/{doctorId}',
-  updateDoctorStatusEndPoint: 'auth/doctors/{doctorId}/status',
+  getDoctorByIdEndPoint: 'api/doctors/{doctorId}',
+  updateDoctorStatusEndPoint: 'api/doctors/{doctorId}/status',
 
   // ** This will be prefixed in authorization header with token
   // ? e.g. Authorization: Bearer <token>
