@@ -37,8 +37,8 @@ module.exports = {
       }
     ],
 
-    // add new line above return
-    'newline-before-return': 'error',
+    // disabled: add new line above return
+    'newline-before-return': 'off',
 
     // add new line below import
     'import/newline-after-import': [
@@ -48,11 +48,7 @@ module.exports = {
       }
     ],
 
-    // add new line after each var, const, let declaration
-    'padding-line-between-statements': [
-      'error',
-      { blankLine: 'always', prev: ['export'], next: ['*'] },
-      { blankLine: 'always', prev: ['*'], next: ['multiline-const', 'multiline-let', 'multiline-var', 'export'] }
-    ]
+    // disabled: add new line after each var, const, let declaration
+    'padding-line-between-statements': 'off'
   }
 }
