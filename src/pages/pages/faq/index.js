@@ -23,16 +23,16 @@ const FAQ = ({ apiData }) => {
   const [activeTab, setActiveTab] = useState('payment')
   useEffect(() => {
     if (searchTerm !== '') {
-      axios.get('/pages/faqs', { params: { q: searchTerm } }).then(response => {
-        if (response.data.faqData && Object.values(response.data.faqData).length) {
-          setData(response.data)
+      // axios.get('/pages/faqs', { params: { q: searchTerm } }).then(response => {
+      //   if (response.data.faqData && Object.values(response.data.faqData).length) {
+      //     setData(response.data)
 
-          // @ts-ignore
-          setActiveTab(Object.values(response.data.faqData)[0].id)
-        } else {
-          setData(null)
-        }
-      })
+      //     // @ts-ignore
+      //     setActiveTab(Object.values(response.data.faqData)[0].id)
+      //   } else {
+      //     setData(null)
+      //   }
+      // })
     } else {
       setData(apiData)
     }
@@ -58,9 +58,15 @@ const FAQ = ({ apiData }) => {
   )
 }
 
-export const getStaticProps = async () => {
-  const res = await axios.get('/pages/faqs')
-  const apiData = res.data
+export const getServerSideProps = async () => {
+  let apiData = []
+
+  try {
+    const res = await axios.get(`/pages/faqs`)
+    apiData = res.data
+  } catch (error) {
+    console.warn('Failed to fetch FAQs', error)
+  }
 
   return {
     props: {
@@ -68,5 +74,6 @@ export const getStaticProps = async () => {
     }
   }
 }
+
 
 export default FAQ

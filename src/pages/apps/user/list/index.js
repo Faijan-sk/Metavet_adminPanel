@@ -392,8 +392,8 @@ const UserList = ({ apiData }) => {
 }
 
 export const getStaticProps = async () => {
-  const res = await axios.get('/cards/statistics')
-  const apiData = res.data
+  // const res = await axios.get('/cards/statistics')
+  const apiData = []
 
   return {
     props: {

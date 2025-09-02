@@ -44,8 +44,8 @@ const DialogExamples = ({ apiPricingPlanData }) => (
 )
 
 export const getStaticProps = async () => {
-  const res = await axios.get('/pages/pricing')
-  const data = res.data
+  // const res = await axios.get('/pages/pricing')
+  const data = {pricingPlans: []}
 
   return {
     props: {

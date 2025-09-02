@@ -22,14 +22,14 @@ export const getStaticPaths = () => {
 }
 
 export const getStaticProps = async ({ params }) => {
-  // const res = await axios.get('/pages/pricing')
+  // const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/pages/pricing`)
   // const data = res.data
-  const data = {}
+  const data = {} // fallback
 
   return {
     props: {
-      tab: params?.tab,
-      apiPricingPlanData: data.pricingPlans
+      tab: params?.tab || null,
+      apiPricingPlanData: data.pricingPlans || null  // <-- replace undefined with null
     }
   }
 }

@@ -49,11 +49,16 @@ const InvoiceAdd = ({ apiClientData, invoiceNumber }) => {
   )
 }
 
-export const getStaticProps = async () => {
-  const clientResponse = await axios.get('/apps/invoice/clients')
-  const apiClientData = clientResponse.data
-  const allInvoicesResponse = await axios.get('/apps/invoice/invoices', { params: { q: '', status: '' } })
-  const lastInvoiceNumber = Math.max(...allInvoicesResponse.data.allData.map(i => i.id))
+export const getServerSideProps = async () => {
+  let apiClientData = { allData: [] }
+  try {
+    const clientResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/apps/invoice/clients`)
+    apiClientData = clientResponse.data
+  } catch (error) {
+    console.warn('Failed to fetch clients', error)
+  }
+
+  const lastInvoiceNumber = 0
 
   return {
     props: {
@@ -62,5 +67,6 @@ export const getStaticProps = async () => {
     }
   }
 }
+
 
 export default InvoiceAdd

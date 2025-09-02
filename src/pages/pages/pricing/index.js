@@ -57,8 +57,8 @@ const Pricing = ({ apiData }) => {
 }
 
 export const getStaticProps = async () => {
-  const res = await axios.get('/pages/pricing')
-  const apiData = res.data
+  // const res = await axios.get('/pages/pricing')
+  const apiData = []
 
   return {
     props: {
