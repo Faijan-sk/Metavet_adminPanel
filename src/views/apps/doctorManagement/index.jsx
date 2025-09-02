@@ -1,36 +1,30 @@
-import { Card, CardContent, CardHeader, Grid, MenuItem, Select, FormControl, InputLabel } from '@mui/material'
-import React from 'react'
-import Button from '@mui/material/Button'
-import Divider from '@mui/material/Divider'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  Grid,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  TextField
+} from '@mui/material'
+import React, { useState } from 'react'
 import { useRouter } from 'next/router'
 import DoctorList from './DoctorList/index'
 import Typography from '@mui/material/Typography'
 import MuiLink from '@mui/material/Link'
-
-// ** MUI Imports
-import TextField from '@mui/material/TextField'
-
-// ** Custom Components Imports
+import Divider from '@mui/material/Divider'
 import PageHeader from 'src/@core/components/page-header'
 
 function Index() {
   const router = useRouter()
 
-  const handleAddDoctor = () => {
-    router.push('/doctorManagement/addDoctor')
-  }
-
-  // states for filters
-  const [status, setStatus] = React.useState('')
-  const [sort, setSort] = React.useState('')
-
-  const handleStatusChange = event => {
-    setStatus(event.target.value)
-  }
-
-  const handleSortChange = event => {
-    setSort(event.target.value)
-  }
+  // ** Filter states
+  const [nameFilter, setNameFilter] = useState('')
+  const [specialityFilter, setSpecialityFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+  const [sortOrder, setSortOrder] = useState('LATEST')
 
   return (
     <>
@@ -48,18 +42,9 @@ function Index() {
       </Grid>
 
       <Card>
-        <CardHeader
-          title='Doctors List'
-          // action={
-          //   <Button size='large' variant='contained' sx={{ minWidth: 120 }} onClick={handleAddDoctor}>
-          //     New Request
-          //   </Button>
-          // }
-        />
-
+        <CardHeader title='Doctors List' />
         {/* Search Filters */}
         <Grid container spacing={2} sx={{ px: 5, py: 3 }}>
-          {/* Doctor Name */}
           <Grid item xs={12} sm={6} md={3}>
             <TextField
               fullWidth
@@ -67,10 +52,11 @@ function Index() {
               placeholder='Enter doctor name'
               variant='outlined'
               size='small'
+              value={nameFilter}
+              onChange={e => setNameFilter(e.target.value)}
             />
           </Grid>
 
-          {/* Speciality */}
           <Grid item xs={12} sm={6} md={3}>
             <TextField
               fullWidth
@@ -78,25 +64,25 @@ function Index() {
               placeholder='Enter speciality'
               variant='outlined'
               size='small'
+              value={specialityFilter}
+              onChange={e => setSpecialityFilter(e.target.value)}
             />
           </Grid>
 
-          {/* Sort (Latest / Oldest) */}
           <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth size='small'>
               <InputLabel>Sort</InputLabel>
-              <Select value={sort} onChange={handleSortChange} label='Sort'>
+              <Select value={sortOrder} onChange={e => setSortOrder(e.target.value)} label='Sort'>
                 <MenuItem value='LATEST'>Latest</MenuItem>
                 <MenuItem value='OLDEST'>Oldest</MenuItem>
               </Select>
             </FormControl>
           </Grid>
 
-          {/* Status */}
           <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth size='small'>
               <InputLabel>Status</InputLabel>
-              <Select value={status} onChange={handleStatusChange} label='Status'>
+              <Select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} label='Status'>
                 <MenuItem value='PENDING'>PENDING</MenuItem>
                 <MenuItem value='APPROVED'>APPROVED</MenuItem>
                 <MenuItem value='REJECTED'>REJECTED</MenuItem>
@@ -107,8 +93,12 @@ function Index() {
 
         <Divider sx={{ m: '0 !important' }} />
         <CardContent>
-          {/* Doctor List Table */}
-          <DoctorList />
+          <DoctorList
+            nameFilter={nameFilter}
+            specialityFilter={specialityFilter}
+            statusFilter={statusFilter}
+            sortOrder={sortOrder}
+          />
         </CardContent>
       </Card>
     </>

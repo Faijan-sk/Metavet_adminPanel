@@ -1,11 +1,6 @@
-// ** React Imports
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-
-// ** JWT Service Import
 import jwt from '../../../../enpoints/jwt/useJwt'
-
-// ** MUI Imports
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableRow from '@mui/material/TableRow'
@@ -16,58 +11,58 @@ import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 import Button from '@mui/material/Button'
 
-const TableStickyHeader = () => {
-  // ** States
+const DoctorList = ({ nameFilter, specialityFilter, statusFilter, sortOrder }) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [doctors, setDoctors] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  // ** Hooks
   const router = useRouter()
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage)
-  }
-
-  const handleChangeRowsPerPage = event => {
-    setRowsPerPage(+event.target.value)
-    setPage(0)
-  }
 
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
         setLoading(true)
         setError(null)
-
         const { data } = await jwt.getAllDoctors()
-
-        // ✅ Sort doctors by updatedAt (fallback: createdAt), newest first
         const sortedDoctors = (data.data || []).sort((a, b) => {
           const dateA = new Date(a.updatedAt || a.createdAt)
           const dateB = new Date(b.updatedAt || b.createdAt)
-
           return dateB - dateA
         })
-
         setDoctors(sortedDoctors)
-      } catch (error) {
-        console.error('Error fetching doctors:', error)
-
-        setError(error.message || 'Failed to fetch doctors')
+      } catch (err) {
+        setError(err.message || 'Failed to fetch doctors')
       } finally {
         setLoading(false)
       }
     }
-
     fetchDoctors()
   }, [])
 
-  const handleViewDoctor = doctorId => {
-    router.push(`/doctorManagement/doctorProfile/${doctorId}`)
+  const handleChangePage = (event, newPage) => setPage(newPage)
+  const handleChangeRowsPerPage = event => {
+    setRowsPerPage(+event.target.value)
+    setPage(0)
   }
+
+  const handleViewDoctor = doctorId => router.push(`/doctorManagement/doctorProfile/${doctorId}`)
+
+  // ** Apply live filtering and sorting
+  const filteredDoctors = doctors
+    .filter(
+      doc =>
+        doc.firstName.toLowerCase().includes(nameFilter.toLowerCase()) ||
+        doc.lastName.toLowerCase().includes(nameFilter.toLowerCase())
+    )
+    .filter(doc => doc.specialization.toLowerCase().includes(specialityFilter.toLowerCase()))
+    .filter(doc => (statusFilter ? doc.doctorProfileStatus === statusFilter : true))
+    .sort((a, b) => {
+      const dateA = new Date(a.updatedAt || a.createdAt)
+      const dateB = new Date(b.updatedAt || b.createdAt)
+      return sortOrder === 'LATEST' ? dateB - dateA : dateA - dateB
+    })
 
   return (
     <>
@@ -96,14 +91,14 @@ const TableStickyHeader = () => {
                   {error}
                 </TableCell>
               </TableRow>
-            ) : doctors.length === 0 ? (
+            ) : filteredDoctors.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} align='center'>
                   No doctors found
                 </TableCell>
               </TableRow>
             ) : (
-              doctors.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(doctor => (
+              filteredDoctors.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(doctor => (
                 <TableRow hover role='checkbox' tabIndex={-1} key={doctor.doctorUid}>
                   <TableCell>
                     {doctor.firstName} {doctor.lastName}
@@ -126,7 +121,7 @@ const TableStickyHeader = () => {
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component='div'
-        count={doctors.length}
+        count={filteredDoctors.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
@@ -136,4 +131,4 @@ const TableStickyHeader = () => {
   )
 }
 
-export default TableStickyHeader
+export default DoctorList
