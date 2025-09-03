@@ -8,6 +8,8 @@ const path = require('path')
 module.exports = {
   trailingSlash: true,
   reactStrictMode: false,
+  basePath: '/admin', // 1.
+  assetPrefix: '/admin/', // 2. this two added for deployment
   transpilePackages: [
     '@fullcalendar/common',
     '@fullcalendar/core',
