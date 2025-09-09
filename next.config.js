@@ -7,7 +7,7 @@ module.exports = {
   reactStrictMode: false,
 
   // GCP deployment ke liye
-  output: 'standalone',
+  // output: 'standalone',
 
   // Base path configuration (choose one approach)
   basePath: process.env.NODE_ENV === 'production' ? '/admin' : '',
