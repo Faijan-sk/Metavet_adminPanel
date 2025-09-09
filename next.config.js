@@ -2,15 +2,11 @@
 const path = require('path')
 
 /** @type {import('next').NextConfig} */
-
-// Remove this if you're not using Fullcalendar features
-
 module.exports = {
-  output: 'export',
-  trailingSlash: true,
   reactStrictMode: false,
-  basePath: '/admin', // 1.
-  assetPrefix: '/admin/', // 2. this two added for deployment
+  basePath: '/admin', // URLs ke liye base path
+  assetPrefix: '/admin/', // Static assets ke liye
+  trailingSlash: true, // Optional, depends on your URLs
   transpilePackages: [
     '@fullcalendar/common',
     '@fullcalendar/core',
@@ -27,7 +23,11 @@ module.exports = {
       ...config.resolve.alias,
       apexcharts: path.resolve(__dirname, './node_modules/apexcharts-clevision')
     }
-
     return config
+  },
+  // Optional: Next.js dev-server ke static assets ke liye
+  // Ye ensure karta hai ki /public folder se images aur files serve ho
+  images: {
+    unoptimized: true
   }
 }
