@@ -1,23 +1,13 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path')
 
 /** @type {import('next').NextConfig} */
 module.exports = {
   reactStrictMode: false,
-  output: 'export',
+  output: 'standalone', // Standalone mode for SSR & API
 
-  basePath: '/admin',
-  assetPrefix: '/admin',
+  basePath: '/admin', // Optional if you need the admin base path
+  assetPrefix: '/admin', // Optional if you serve assets from basePath
   trailingSlash: true,
-
-  // Problem वाले pages को skip करें
-  exportPathMap: async function (defaultPathMap, { dev, dir, outDir, distDir, buildId }) {
-    return {
-      '/': { page: '/' }
-      // जो pages काम कर रहे हैं वो add करें
-      // '/apps/invoice/add' को exclude करें
-    }
-  },
 
   transpilePackages: [
     '@fullcalendar/common',
