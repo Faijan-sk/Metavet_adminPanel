@@ -4,9 +4,19 @@ const path = require('path')
 /** @type {import('next').NextConfig} */
 module.exports = {
   reactStrictMode: false,
-  basePath: '/admin', // URLs ke liye base path
-  assetPrefix: '/admin/', // Static assets ke liye
-  trailingSlash: true, // Optional, depends on your URLs
+
+  // GCP deployment ke liye
+  output: 'standalone',
+
+  // Base path configuration (choose one approach)
+  basePath: process.env.NODE_ENV === 'production' ? '/admin' : '',
+
+  // Asset prefix - same as basePath ya empty
+  assetPrefix: process.env.NODE_ENV === 'production' ? '/admin' : '',
+
+  trailingSlash: true,
+
+  // Transpile packages
   transpilePackages: [
     '@fullcalendar/common',
     '@fullcalendar/core',
@@ -15,9 +25,19 @@ module.exports = {
     '@fullcalendar/list',
     '@fullcalendar/timegrid'
   ],
+
   experimental: {
     esmExternals: false
   },
+
+  // Images configuration
+  images: {
+    unoptimized: true
+    // Agar external images use kar rahe ho to domains add karo
+    // domains: ['your-api-domain.com']
+  },
+
+  // Webpack configuration
   webpack: config => {
     config.resolve.alias = {
       ...config.resolve.alias,
@@ -25,9 +45,23 @@ module.exports = {
     }
     return config
   },
-  // Optional: Next.js dev-server ke static assets ke liye
-  // Ye ensure karta hai ki /public folder se images aur files serve ho
-  images: {
-    unoptimized: true
+
+  // Environment-specific settings
+  env: {
+    CUSTOM_KEY: process.env.CUSTOM_KEY
+  },
+
+  // Headers for API routes (optional)
+  async headers() {
+    return [
+      {
+        source: '/api/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' }
+        ]
+      }
+    ]
   }
 }
