@@ -4,10 +4,10 @@ const path = require('path')
 /** @type {import('next').NextConfig} */
 module.exports = {
   reactStrictMode: false,
-  output: 'standalone',
+  output: 'export',
 
-  basePath: process.env.NODE_ENV === 'production' ? '/admin' : '',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/admin' : '',
+  basePath: '/admin',
+  assetPrefix: '/admin',
   trailingSlash: true,
 
   transpilePackages: [
