@@ -10,6 +10,15 @@ module.exports = {
   assetPrefix: '/admin',
   trailingSlash: true,
 
+  // Problem वाले pages को skip करें
+  exportPathMap: async function (defaultPathMap, { dev, dir, outDir, distDir, buildId }) {
+    return {
+      '/': { page: '/' }
+      // जो pages काम कर रहे हैं वो add करें
+      // '/apps/invoice/add' को exclude करें
+    }
+  },
+
   transpilePackages: [
     '@fullcalendar/common',
     '@fullcalendar/core',
