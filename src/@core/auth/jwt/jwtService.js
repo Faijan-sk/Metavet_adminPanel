@@ -3,7 +3,7 @@ import jwtDefaultConfig from './jwtDefaultConfig'
 
 // axios.defaults.baseURL = 'http://localhost:8010/'
 
-axios.defaults.baseURL = 'http://34.61.254.251:8080/'
+axios.defaults.baseURL = process.env.NEXT_PUBLIC_BASE_URL
 
 export default class JwtService {
   // ** jwtConfig <= Will be used by this service

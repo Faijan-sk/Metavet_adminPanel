@@ -122,6 +122,7 @@ const LoginPage = () => {
   const onSubmit = data => {
     const { userName, password } = data
     console.log(data)
+    console.log('lgon data', data)
     auth.login({ userName, password, rememberMe }, () => {
       setError('userName', {
         type: 'manual',

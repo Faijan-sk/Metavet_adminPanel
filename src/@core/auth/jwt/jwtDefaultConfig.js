@@ -4,13 +4,13 @@ export default {
    * user EndPoints
    */
   registerEndpoint: '/auth/register',
-  loginEndpoint: '/auth/admin/login',
+  loginEndpoint: '/api/auth/admin/login',
   otpVerifyEndPoint: '/auth/otp/verify-otp',
 
   /*
    * Doctor EndPoints
    */
-  getAllDoctorEndPoint: '/auth/admin/doctors',
+  getAllDoctorEndPoint: 'api/auth/admin/doctors',
   getPendingDoctorEndPoint: '/api/doctors/status/PENDING',
   getApprovedDoctorEndPoint: '/api/doctors/appointment-status/APPROVED',
   getDoctorByIdEndPoint: 'api/doctors/{doctorId}',
