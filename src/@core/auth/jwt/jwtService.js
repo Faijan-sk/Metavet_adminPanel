@@ -1,7 +1,7 @@
 import axios from 'axios'
 import jwtDefaultConfig from './jwtDefaultConfig'
 
-// axios.defaults.baseURL = 'http://localhost:8010/'
+// axios.defaults.baseURL = 'http://localhost:8080/'
 
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_BASE_URL
 
