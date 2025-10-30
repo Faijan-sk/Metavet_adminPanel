@@ -24,20 +24,21 @@ const FooterIllustrationsV2 = props => {
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
   if (!hidden) {
     return (
-      <>
-        {!image ? (
-          <MaskImg
-            alt='mask'
-            className={className}
-            {...(height && { height })}
-            src={`/images/pages/auth-v2-mask-${theme.palette.mode}.png`}
-          />
-        ) : typeof image === 'string' ? (
-          <MaskImg alt='mask' src={image} className={className} {...(height && { height })} />
-        ) : (
-          image
-        )}
-      </>
+      <></>
+      // <>
+      //   {!image ? (
+      //     <MaskImg
+      //       // alt='mask'
+      //       className={className}
+      //       {...(height && { height })}
+      //       src={`/images/pages/auth-v2-mask-${theme.palette.mode}.png`}
+      //     />
+      //   ) : typeof image === 'string' ? (
+      //     <MaskImg alt='mask' src={image} className={className} {...(height && { height })} />
+      //   ) : (
+      //     image
+      //   )}
+      // </>
     )
   } else {
     return null

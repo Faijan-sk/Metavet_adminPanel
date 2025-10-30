@@ -44,6 +44,9 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 // ** Demo Imports
 import FooterIllustrationsV2 from 'src/views/pages/auth/FooterIllustrationsV2'
 
+//images import 
+// import LoginImage from "./../../../src/assests/imgages/loginImage.png"
+
 // ** Styled Components
 const LoginIllustration = styled('img')(({ theme }) => ({
   zIndex: 2,
@@ -90,9 +93,14 @@ const schema = yup.object().shape({
 })
 
 const defaultValues = {
-  password: 'securePassword123',
-  userName: 'adminOne'
+  password: '',
+  userName: ''
 }
+
+// const defaultValues = {
+//   password: 'securePassword123',
+//   userName: 'adminOne'
+// }
 
 const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(true)
@@ -147,7 +155,9 @@ const LoginPage = () => {
             margin: theme => theme.spacing(8, 0, 8, 8)
           }}
         >
-          <LoginIllustration alt='login-illustration' src={`/images/pages/${imageSource}-${theme.palette.mode}.png`} />
+
+         
+          {/* <LoginIllustration alt='login-illustration' src={`/images/pages/${imageSource}-${theme.palette.mode}.png`} /> */}
           <FooterIllustrationsV2 />
         </Box>
       ) : null}
@@ -198,29 +208,21 @@ const LoginPage = () => {
                 Please sign-in to your account and start the adventure
               </Typography>
             </Box>
-            <Alert icon={false} sx={{ py: 3, mb: 6, ...bgColors.primaryLight, '& .MuiAlert-message': { p: 0 } }}>
-              <Typography variant='body2' sx={{ mb: 2, color: 'primary.main' }}>
-                Admin: <strong>admin@vuexy.com</strong> / Pass: <strong>admin</strong>
-              </Typography>
-              <Typography variant='body2' sx={{ color: 'primary.main' }}>
-                Client: <strong>client@vuexy.com</strong> / Pass: <strong>client</strong>
-              </Typography>
-            </Alert>
             <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
               <FormControl fullWidth sx={{ mb: 4 }}>
                 <Controller
                   name='userName'
                   control={control}
                   rules={{ required: true }}
-                  render={({ field: { value, onChange, onBlur } }) => (
+                  render={({ field }) => (
                     <TextField
+                      {...field}
                       autoFocus
                       label='Email'
-                      value={value}
-                      onBlur={onBlur}
-                      onChange={onChange}
                       error={Boolean(errors.userName)}
-                      placeholder='admin@vuexy.com'
+                      placeholder='admin@gmail.com'
+                      autoComplete='off'
+                      inputProps={{ autoComplete: 'off' }}
                     />
                   )}
                 />
@@ -236,15 +238,15 @@ const LoginPage = () => {
                   name='password'
                   control={control}
                   rules={{ required: true }}
-                  render={({ field: { value, onChange, onBlur } }) => (
+                  render={({ field }) => (
                     <OutlinedInput
-                      value={value}
-                      onBlur={onBlur}
+                      {...field}
                       label='Password'
-                      onChange={onChange}
                       id='auth-login-v2-password'
                       error={Boolean(errors.password)}
                       type={showPassword ? 'text' : 'password'}
+                      autoComplete='off'
+                      inputProps={{ autoComplete: 'new-password' }}
                       endAdornment={
                         <InputAdornment position='end'>
                           <IconButton
@@ -284,14 +286,11 @@ const LoginPage = () => {
                 Login
               </Button>
               <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-                {/* <Typography sx={{ color: 'text.secondary', mr: 2 }}>New on our platform?</Typography> */}
                 <Typography variant='body2'>
-                  <LinkStyled href='/register' sx={{ fontSize: '1rem' }}>
-                    {/* Create an account */}
-                  </LinkStyled>
+                  <LinkStyled href='/register' sx={{ fontSize: '1rem' }}></LinkStyled>
                 </Typography>
               </Box>
-              <Divider
+              {/* <Divider
                 sx={{
                   fontSize: '0.875rem',
                   color: 'text.disabled',
@@ -300,8 +299,8 @@ const LoginPage = () => {
                 }}
               >
                 or
-              </Divider>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              </Divider> */}
+              {/* <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <IconButton href='/' component={Link} sx={{ color: '#497ce2' }} onClick={e => e.preventDefault()}>
                   <Icon icon='mdi:facebook' />
                 </IconButton>
@@ -319,7 +318,7 @@ const LoginPage = () => {
                 <IconButton href='/' component={Link} sx={{ color: '#db4437' }} onClick={e => e.preventDefault()}>
                   <Icon icon='mdi:google' />
                 </IconButton>
-              </Box>
+              </Box> */}
             </form>
           </Box>
         </Box>
