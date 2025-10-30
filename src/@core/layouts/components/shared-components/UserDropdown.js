@@ -116,21 +116,21 @@ const UserDropdown = props => {
                 horizontal: 'right'
               }}
             >
-              <Avatar alt='John Doe' src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
+              <Avatar alt='Admin' src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
             </Badge>
             <Box sx={{ display: 'flex', ml: 2.5, alignItems: 'flex-start', flexDirection: 'column' }}>
-              <Typography sx={{ fontWeight: 500 }}>John Doe</Typography>
-              <Typography variant='body2'>Admin</Typography>
+              <Typography sx={{ fontWeight: 500 }}>Admin</Typography>
+              <Typography variant='body2'>admin</Typography>
             </Box>
           </Box>
         </Box>
-        <Divider sx={{ my: theme => `${theme.spacing(2)} !important` }} />
-        <MenuItemStyled sx={{ p: 0 }}>
+        {/* <Divider sx={{ my: theme => `${theme.spacing(2)} !important` }} /> */}
+        {/* <MenuItemStyled sx={{ p: 0 }}>
           <Box sx={styles}>
             <Icon icon='tabler:user-check' />
             My Profile
           </Box>
-        </MenuItemStyled>
+        </MenuItemStyled> */}
         {/* <MenuItemStyled sx={{ p: 0 }} onClick={() => handleDropdownClose('/apps/email')}>
           <Box sx={styles}>
             <Icon icon='tabler:mail' />
