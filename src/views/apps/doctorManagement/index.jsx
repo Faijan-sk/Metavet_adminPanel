@@ -7,7 +7,9 @@ import {
   Select,
   FormControl,
   InputLabel,
-  TextField
+  TextField,
+  Button,
+  Box
 } from '@mui/material'
 import React, { useState } from 'react'
 import { useRouter } from 'next/router'
@@ -16,6 +18,7 @@ import Typography from '@mui/material/Typography'
 import MuiLink from '@mui/material/Link'
 import Divider from '@mui/material/Divider'
 import PageHeader from 'src/@core/components/page-header'
+// removed unused `useNavigate` import from react-router-dom
 
 function Index() {
   const router = useRouter()
@@ -42,7 +45,28 @@ function Index() {
       </Grid>
 
       <Card>
-        <CardHeader title='Doctors List' />
+        {/* Header Row with Title and Approve Button */}
+        <CardHeader
+          title={
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <Typography variant='h6'>Doctors List</Typography>
+              <Button
+                variant='contained'
+                sx={{ ml: 2 }}
+                onClick={() => router.push('/doctorManagement/addDoctor/')}
+              >
+                Approve
+              </Button>
+            </Box>
+          }
+        />
+
         {/* Search Filters */}
         <Grid container spacing={2} sx={{ px: 5, py: 3 }}>
           <Grid item xs={12} sm={6} md={3}>
@@ -72,7 +96,11 @@ function Index() {
           <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth size='small'>
               <InputLabel>Sort</InputLabel>
-              <Select value={sortOrder} onChange={e => setSortOrder(e.target.value)} label='Sort'>
+              <Select
+                value={sortOrder}
+                onChange={e => setSortOrder(e.target.value)}
+                label='Sort'
+              >
                 <MenuItem value='LATEST'>Latest</MenuItem>
                 <MenuItem value='OLDEST'>Oldest</MenuItem>
               </Select>
@@ -82,7 +110,11 @@ function Index() {
           <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth size='small'>
               <InputLabel>Status</InputLabel>
-              <Select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} label='Status'>
+              <Select
+                value={statusFilter}
+                onChange={e => setStatusFilter(e.target.value)}
+                label='Status'
+              >
                 <MenuItem value='PENDING'>PENDING</MenuItem>
                 <MenuItem value='APPROVED'>APPROVED</MenuItem>
                 <MenuItem value='REJECTED'>REJECTED</MenuItem>
@@ -92,6 +124,7 @@ function Index() {
         </Grid>
 
         <Divider sx={{ m: '0 !important' }} />
+
         <CardContent>
           <DoctorList
             nameFilter={nameFilter}

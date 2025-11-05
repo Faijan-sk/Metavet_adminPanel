@@ -1,12 +1,22 @@
 import React from 'react'
-import AddDoctor from './../../../views/apps/doctorManagement/addDoctor/index'
+import AddDoctorForm from "../../../views/apps/doctorManagement/addDoctor/AddDoctorForm"
 
 function index() {
-  return <AddDoctor />
+  return (
+    <>
+    
+    
+    <AddDoctorForm />
+    </>
+    
+        
+    
+  )
 }
 index.acl = {
   action: 'read',
   subject: 'doctor-management'
 }
+
 
 export default index

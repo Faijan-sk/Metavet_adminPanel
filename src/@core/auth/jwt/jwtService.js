@@ -111,10 +111,12 @@ export default class JwtService {
 
   /*
    *     User Services
-   */
-  register(...args) {
-    return axios.post(this.jwtConfig.registerEndpoint, ...args)
-  }
+   */  
+  register(data) {
+  // data should be the payload object
+  return axios.post(this.jwtConfig.registerEndpoint, data)
+}
+  
 
   verifyOtp(otpData, token) {
     // Use the token passed as parameter (from Redux)
@@ -128,6 +130,7 @@ export default class JwtService {
   /*
    *   Doctor Services
    */
+  
   getAllDoctors() {
     return axios.get(this.jwtConfig.getAllDoctorEndPoint)
   }
@@ -177,4 +180,21 @@ export default class JwtService {
         throw err
       })
   }
+//    createDoctor(payload) {
+//   console.log('Calling create doctor API', payload)
+//   return axios.post(this.jwtConfig.createDoctorEndPoint, payload, {
+//     headers: {
+//       Authorization: `${this.jwtConfig.tokenType} ${localStorage.getItem(this.jwtConfig.storageTokenKeyName)}`,
+//       'Content-Type': 'application/json'
+//     }
+//   })
+// }
+createDoctor(payload) {
+
+  return axios.post(this.jwtConfig.createDoctorEndPoint,payload)
+}
+  
+
+
+
 }

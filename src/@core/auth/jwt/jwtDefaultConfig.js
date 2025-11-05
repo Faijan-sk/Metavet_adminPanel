@@ -3,13 +3,16 @@ export default {
   /*
    * user EndPoints
    */
-  registerEndpoint: '/auth/register',
+  registerEndpoint: '/api/auth/register',
   loginEndpoint: '/api/auth/admin/login',
   otpVerifyEndPoint: '/auth/otp/verify-otp',
+
+
 
   /*
    * Doctor EndPoints
    */
+  createDoctorEndPoint: '/api/auth/doctor/create',
   getAllDoctorEndPoint: 'api/auth/admin/doctors',
   getPendingDoctorEndPoint: '/api/doctors/status/PENDING',
   getApprovedDoctorEndPoint: '/api/doctors/appointment-status/APPROVED',
