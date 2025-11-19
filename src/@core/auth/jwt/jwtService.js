@@ -247,4 +247,25 @@ getMetavetToWalkerKycById(uId) {
 
 
 
+  getAllKycMetavetToBehaviourist(){
+  return axios.get(this.jwtConfig.metavetToBehaviouristEndpoint)
+}
+
+getMetavetToBehaviouristKycById(uId) {
+    const endpoint = this.jwtConfig.metavetToBehaviouristByUidEndPoint.replace('{uId}', uId)
+
+    return axios
+      .get(endpoint)
+      .then(response => response.data)
+      .catch(error => {
+        console.error('Error fetching doctor by ID:', error)
+
+        throw error
+      })
+  }
+
+
+
+
+
 }

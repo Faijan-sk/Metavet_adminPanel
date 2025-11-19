@@ -110,7 +110,7 @@ function Index() {
                   >
                     <MenuItem value='Metavet_to_Groomer'>Metavet To Groomer KYC</MenuItem>
                     <MenuItem value='Metavet_to_Walker'>Metavet To Walker KYC</MenuItem>
-                    {/* <MenuItem value='Metavet_to_Behaviourist'>Metavet To Behaviour KYC</MenuItem>  */}
+                    <MenuItem value='Metavet_to_Behaviourist'>Metavet To Behaviour KYC</MenuItem>
                     <MenuItem value='Groomer_to_Client'>Groomer To Client KYC</MenuItem>
                     <MenuItem value='Walker_to_Client'>Walker To Client KYC</MenuItem>
                     <MenuItem value='Behaviourist_to_Client'>Behaviourist To Client KYC</MenuItem>

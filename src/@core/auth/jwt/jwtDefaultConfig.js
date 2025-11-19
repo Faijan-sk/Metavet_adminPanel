@@ -38,10 +38,15 @@ export default {
   metavetToWalkerEndpoint: '/api/walkerkyc/all',
 
 
-  metavetToBehaviouristEndpoint : '',
+  metavetToBehaviouristEndpoint : '/api/behaviouristkyc/all',
+   metavetToBehaviouristByUidEndPoint : '/api/behaviouristkyc/uid/{uId}',
+  behaviouristToClientEndpoint : '/api/behaviorist-kyc',
+
+
+
+
   grommerToClientEndpoint: '/api/groomer-kyc',
   walkerToClientEndpoint: '/api/walker-kyc',
-  behaviouristToClientEndpoint : '/api/behaviorist-kyc'
-
+  
 
 }

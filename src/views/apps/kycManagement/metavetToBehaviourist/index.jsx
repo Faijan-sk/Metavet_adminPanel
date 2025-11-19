@@ -11,7 +11,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 import Button from '@mui/material/Button'
 
-const DoctorList = ({
+const BehaviouristKycList = ({
   nameFilter = '',
   specialityFilter = '',
   statusFilter = '',
@@ -19,33 +19,35 @@ const DoctorList = ({
 }) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
-  const [doctors, setDoctors] = useState([])
+  const [kycs, setKycs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   const router = useRouter()
 
   useEffect(() => {
-    const fetchDoctors = async () => {
+    const fetchKycs = async () => {
       try {
         setLoading(true)
         setError('')
-        const { data } = await jwt.getAllDoctors()
-        // Defensive: data.data might be undefined
-        const list = Array.isArray(data?.data) ? data.data : []
-        const sortedDoctors = list.sort((a, b) => {
-          const dateA = new Date(a?.updatedAt || a?.createdAt || 0)
-          const dateB = new Date(b?.updatedAt || b?.createdAt || 0)
-          return dateB - dateA
-        })
-        setDoctors(sortedDoctors)
+        const res = await jwt.getAllKycMetavetToBehaviourist()
+        const payload = res?.data ?? res
+        const list = Array.isArray(payload?.data)
+          ? payload.data
+          : Array.isArray(payload)
+            ? payload
+            : Array.isArray(res?.data)
+              ? res.data
+              : []
+        setKycs(list)
       } catch (err) {
-        setError(err?.message || String(err) || 'Failed to fetch doctors')
+        setError(err?.message || String(err) || 'Failed to fetch KYC records')
       } finally {
         setLoading(false)
       }
     }
-    fetchDoctors()
+
+    fetchKycs()
   }, [])
 
   const handleChangePage = (event, newPage) => setPage(newPage)
@@ -54,60 +56,76 @@ const DoctorList = ({
     setPage(0)
   }
 
-  // Use doctorUid as primary key / id consistently — fallback to doctorId if not present
-  const handleViewDoctor = doctorUidOrId => {
-    const id = doctorUidOrId
-    router.push(`/doctorManagement/doctorProfile/${id}`)
+  // Navigate to behaviourist detail page using uid
+  const handleView = identifier => {
+    if (!identifier) return
+    // Navigate to the behaviourist detail page with uid
+    router.push(`/kycManagement/metavetToBehaviourist/${encodeURIComponent(identifier)}`)
   }
 
-  // normalize filters to strings and lowercase for safe comparison
   const nameFilterLower = (nameFilter || '').toString().trim().toLowerCase()
   const specialityFilterLower = (specialityFilter || '').toString().trim().toLowerCase()
   const statusFilterNormalized = (statusFilter || '').toString().trim()
 
-  // memoize filtered + sorted list
-  const filteredDoctors = useMemo(() => {
-    const filtered = doctors
-      .filter(doc => {
-        // Safely access names
-        const first = (doc?.firstName || '').toString().toLowerCase()
-        const last = (doc?.lastName || '').toString().toLowerCase()
+  const filteredKycs = useMemo(() => {
+    const filtered = kycs
+      .filter(item => {
         if (!nameFilterLower) return true
-        return first.includes(nameFilterLower) || last.includes(nameFilterLower)
+        const fullName = (item?.fullLegalName || item?.businessName || '').toString().toLowerCase()
+        return fullName.includes(nameFilterLower)
       })
-      .filter(doc => {
-        const spec = (doc?.specialization || doc?.businessName || '').toString().toLowerCase()
+      .filter(item => {
         if (!specialityFilterLower) return true
-        return spec.includes(specialityFilterLower)
+        const businessName = (item?.businessName || '').toString().toLowerCase()
+        const specializations = Array.isArray(item?.specializations)
+          ? item.specializations.join(' ').toString().toLowerCase()
+          : (item?.specializations || '').toString().toLowerCase()
+        const servicesOffered = Array.isArray(item?.servicesOffered)
+          ? item.servicesOffered.join(' ').toString().toLowerCase()
+          : (item?.servicesOffered || '').toString().toLowerCase()
+        return (
+          businessName.includes(specialityFilterLower) ||
+          specializations.includes(specialityFilterLower) ||
+          servicesOffered.includes(specialityFilterLower)
+        )
       })
-      .filter(doc => {
+      .filter(item => {
         if (!statusFilterNormalized) return true
-        // Compare either by exact match or case-insensitive
-        const status = (doc?.doctorProfileStatus || '').toString()
+        const status = (item?.status || '').toString()
         return status === statusFilterNormalized
       })
 
-    // sort according to sortOrder prop
     return filtered.sort((a, b) => {
-      const dateA = new Date(a?.updatedAt || a?.createdAt || 0)
-      const dateB = new Date(b?.updatedAt || b?.createdAt || 0)
+      const dateA = new Date(a?.updatedAt || a?.signatureDate || a?.createdAt || 0)
+      const dateB = new Date(b?.updatedAt || b?.signatureDate || b?.createdAt || 0)
       return sortOrder === 'LATEST' ? dateB - dateA : dateA - dateB
     })
-  }, [doctors, nameFilterLower, specialityFilterLower, statusFilterNormalized, sortOrder])
+  }, [kycs, nameFilterLower, specialityFilterLower, statusFilterNormalized, sortOrder])
 
-  // slice for pagination
-  const visibleDoctors = filteredDoctors.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+  const visibleKycs = filteredKycs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+
+  const formatDate = dateString => {
+    if (!dateString) return '—'
+    try {
+      const d = new Date(dateString)
+      if (isNaN(d)) return dateString
+      return d.toLocaleDateString()
+    } catch {
+      return dateString
+    }
+  }
 
   return (
     <>
       <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
-        <Table stickyHeader aria-label="sticky table">
+        <Table stickyHeader aria-label="behaviourist kyc table">
           <TableHead>
             <TableRow>
-              <TableCell>Legal Name</TableCell>
-              <TableCell>Business Name</TableCell>
+              <TableCell>Behaviourist Name / Business</TableCell>
+              <TableCell>Phone</TableCell>
               <TableCell>Email</TableCell>
-              <TableCell>Phone Number</TableCell>
+              <TableCell>Years Exp</TableCell>
+              <TableCell>Signature Date</TableCell>
               <TableCell>Status</TableCell>
               <TableCell align="right">Action</TableCell>
             </TableRow>
@@ -115,39 +133,40 @@ const DoctorList = ({
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} align="center">
-                  Loading...
-                </TableCell>
+                <TableCell colSpan={7} align="center">Loading...</TableCell>
               </TableRow>
             ) : error ? (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ color: 'red' }}>
-                  {error}
-                </TableCell>
+                <TableCell colSpan={7} align="center" sx={{ color: 'red' }}>{error}</TableCell>
               </TableRow>
-            ) : filteredDoctors.length === 0 ? (
+            ) : filteredKycs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} align="center">
-                  No doctors found
-                </TableCell>
+                <TableCell colSpan={7} align="center">No records found</TableCell>
               </TableRow>
             ) : (
-              visibleDoctors.map(doctor => {
-                const key = doctor?.doctorUid || doctor?.doctorId || `${doctor?.email}-${doctor?.phoneNumber}`
-                const displayName = `${doctor?.firstName || ''} ${doctor?.lastName || ''}`.trim()
+              visibleKycs.map((item, idx) => {
+                // Use uid from API response
+                const uid = item?.uid || item?.id || item?.email || item?.phone || `behaviourist-${idx}`
+                const key = uid
+                const legalName = (item?.fullLegalName || item?.businessName || '—').toString().trim()
+                const email = item?.email || '—'
+                const phone = item?.phone || '—'
+                const yearsExperience = typeof item?.yearsExperience === 'number'
+                  ? item.yearsExperience
+                  : (item?.yearsExperience || '—')
+                const signatureDate = item?.signatureDate || item?.signature_date || item?.updatedAt || '—'
+                const status = item?.status || '—'
+
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={key}>
-                    <TableCell>{displayName || '—'}</TableCell>
-                    <TableCell>{doctor?.specialization || doctor?.businessName || '—'}</TableCell>
-                    <TableCell>{doctor?.email || '—'}</TableCell>
-                    <TableCell>{doctor?.phoneNumber || '—'}</TableCell>
-                    <TableCell>{doctor?.doctorProfileStatus || '—'}</TableCell>
+                    <TableCell>{legalName}</TableCell>
+                    <TableCell>{phone}</TableCell>
+                    <TableCell>{email}</TableCell>
+                    <TableCell>{yearsExperience}</TableCell>
+                    <TableCell>{formatDate(signatureDate)}</TableCell>
+                    <TableCell>{status}</TableCell>
                     <TableCell align="right">
-                      <Button
-                        variant="text"
-                        size="small"
-                        onClick={() => handleViewDoctor(doctor?.doctorUid || doctor?.doctorId)}
-                      >
+                      <Button variant="text" size="small" onClick={() => handleView(uid)}>
                         View
                       </Button>
                     </TableCell>
@@ -162,7 +181,7 @@ const DoctorList = ({
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component="div"
-        count={filteredDoctors.length}
+        count={filteredKycs.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
@@ -172,4 +191,4 @@ const DoctorList = ({
   )
 }
 
-export default DoctorList
+export default BehaviouristKycList
