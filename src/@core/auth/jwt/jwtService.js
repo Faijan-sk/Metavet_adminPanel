@@ -195,6 +195,56 @@ createDoctor(payload) {
 }
   
 
+getAllKycMetavetToGroomer(){
+  return axios.get(this.jwtConfig.metavetToGroomerEndpoint)
+}
+
+
+getAllKycGroomerToClient(){
+  return axios.get(this.jwtConfig.grommerToClientEndpoint)
+}
+
+getAllKycWalkerToClient(){
+  return axios.get(this.jwtConfig.walkerToClientEndpoint)
+}
+
+
+getAllKycBehaviouristToClient(){
+  return axios.get(this.jwtConfig.behaviouristToClientEndpoint)
+}
+
+getMetavetToGroomerKycById(uId) {
+    const endpoint = this.jwtConfig.metavetToGroomerByUidEndpoint.replace('{uId}', uId)
+
+    return axios
+      .get(endpoint)
+      .then(response => response.data)
+      .catch(error => {
+        console.error('Error fetching doctor by ID:', error)
+
+        throw error
+      })
+  }
+
+getAllKycMetavetToWalker(){
+  return axios.get(this.jwtConfig.metavetToWalkerEndpoint)
+}
+
+getMetavetToWalkerKycById(uId) {
+    const endpoint = this.jwtConfig.metavetToWalkerByUidEndPoint.replace('{uId}', uId)
+
+    return axios
+      .get(endpoint)
+      .then(response => response.data)
+      .catch(error => {
+        console.error('Error fetching doctor by ID:', error)
+
+        throw error
+      })
+  }
+
+
+
 
 
 }

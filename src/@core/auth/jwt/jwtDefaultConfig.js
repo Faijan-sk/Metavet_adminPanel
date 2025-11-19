@@ -1,3 +1,5 @@
+// import { L } from "@fullcalendar/list/internal-common";
+
 // ** Auth Endpoints
 export default {
   /*
@@ -25,5 +27,21 @@ export default {
 
   // ** Value of this property will be used as key to store JWT token in storage
   storageTokenKeyName: 'accessToken',
-  storageRefreshTokenKeyName: 'refresh'
+  storageRefreshTokenKeyName: 'refresh',
+
+  //kyc Endpoint 
+  metavetToGroomerEndpoint : '/groomerkyc/all',
+  metavetToGroomerByUidEndpoint : '/groomerkyc/uid/{uId}',
+
+  
+  metavetToWalkerByUidEndPoint : '/api/walkerkyc/uid/{uId}',
+  metavetToWalkerEndpoint: '/api/walkerkyc/all',
+
+
+  metavetToBehaviouristEndpoint : '',
+  grommerToClientEndpoint: '/api/groomer-kyc',
+  walkerToClientEndpoint: '/api/walker-kyc',
+  behaviouristToClientEndpoint : '/api/behaviorist-kyc'
+
+
 }

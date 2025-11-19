@@ -2,7 +2,8 @@ import React from 'react'
 import DoctorProfile from './../../../views/apps/doctorManagement/doctorProfile/index'
 
 function index() {
-  return <DoctorProfile />
+  return
+  <DoctorProfile />
 }
 index.acl = {
   action: 'read',

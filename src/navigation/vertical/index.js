@@ -36,6 +36,14 @@ const navigation = () => {
       subject: 'doctor-management'
     },
     {
+      title: 'KYC Mangement',
+      icon: 'tabler:id',
+      path: '/kycManagement',
+      action: 'read',
+      subject: 'doctor-management'
+
+    },
+    {
       title: 'Pet Mangement',
       icon: 'tabler:dog',
       path: '/apps/petManagement'
