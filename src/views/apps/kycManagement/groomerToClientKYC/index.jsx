@@ -31,7 +31,7 @@ const DoctorList = ({
       try {
         setLoading(true)
         setError('')
-        // try groomer->client endpoint
+
         const res = await (useJwt.getAllKycGroomerToClient ? useJwt.getAllKycGroomerToClient() : useJwt.getAllKycBehaviouristToClient && useJwt.getAllKycBehaviouristToClient())
         const payload = res?.data ?? res
         const list = Array.isArray(payload?.data)

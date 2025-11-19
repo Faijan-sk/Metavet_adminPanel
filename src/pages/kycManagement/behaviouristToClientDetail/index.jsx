@@ -2,11 +2,9 @@
 import { useRouter } from 'next/router'
 import DoctorProfile from 'src/views/apps/doctorManagement/doctorProfile'
 import Details from "src/views/apps/kycManagement/behaviouristToClienKyc/detail"
+
+
 const DoctorProfilePage = () => {
-
-
-
-
     return <Details />
 }
 

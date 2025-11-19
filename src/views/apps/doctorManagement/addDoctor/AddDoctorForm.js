@@ -263,15 +263,19 @@ const StepperLinearWithValidation = () => {
           const firstErrorKey = Object.keys(errorData.errors)[0]
           errorMessage = errorData.errors[firstErrorKey]
         } 
+
         // Check for direct message
+
         else if (errorData.message) {
           errorMessage = errorData.message
         }
+
         // If errorData is string
         else if (typeof errorData === 'string') {
           errorMessage = errorData
         }
       } 
+
       // Fallback to error.message
       else if (error?.message) {
         errorMessage = error.message
@@ -854,6 +858,7 @@ const StepperLinearWithValidation = () => {
           label='City'
           onChange={(e) => {
             const inputValue = e.target.value
+
             // Allow only alphabets (A–Z or a–z)
             if (/^[A-Za-z]*$/.test(inputValue)) {
               onChange(inputValue)
@@ -883,7 +888,6 @@ const StepperLinearWithValidation = () => {
           label='State'
           onChange={(e) => {
             const inputValue = e.target.value
-            // Allow only alphabets (A–Z or a–z)
             if (/^[A-Za-z]*$/.test(inputValue)) {
               onChange(inputValue)
             }
@@ -1005,9 +1009,9 @@ const StepperLinearWithValidation = () => {
           value={value ?? ''}
           label='License Number'
           onChange={(e) => {
-            // take typed value, convert to uppercase
+          
             const next = String(e.target.value).toUpperCase();
-            // allow only A-Z and 0-9 (no spaces, no special chars)
+          
             if (/^[A-Z0-9]*$/.test(next)) {
               onChange(next);
             }
@@ -1036,7 +1040,7 @@ const StepperLinearWithValidation = () => {
           label='Qualification'
           onChange={(e) => {
             const inputValue = e.target.value
-            // Allow only alphabets, commas, and spaces
+            
             if (/^[A-Za-z,\s]*$/.test(inputValue)) {
               onChange(inputValue)
             }
@@ -1065,7 +1069,6 @@ const StepperLinearWithValidation = () => {
           label='Specialization'
           onChange={(e) => {
             const inputValue = e.target.value
-            // Allow only alphabets, commas, and spaces
             if (/^[A-Za-z,\s]*$/.test(inputValue)) {
               onChange(inputValue)
             }
@@ -1094,7 +1097,7 @@ const StepperLinearWithValidation = () => {
           label='Previous Workplace'
           onChange={(e) => {
             const inputValue = e.target.value
-            // Allow only alphabets, commas, and spaces
+           
             if (/^[A-Za-z,\s]*$/.test(inputValue)) {
               onChange(inputValue)
             }
@@ -1177,7 +1180,7 @@ const StepperLinearWithValidation = () => {
           label='Emergency Contact'
           onChange={(e) => {
             const inputValue = e.target.value
-            // Allow only numbers and max length = 10
+         
             if (/^\d{0,10}$/.test(inputValue)) {
               onChange(inputValue)
             }
@@ -1207,7 +1210,7 @@ const StepperLinearWithValidation = () => {
           label='Bio'
           onChange={(e) => {
             const inputValue = e.target.value
-            // Allow only alphabets, numbers, commas, and spaces
+          
             if (/^[A-Za-z0-9,\s]*$/.test(inputValue)) {
               onChange(inputValue)
             }

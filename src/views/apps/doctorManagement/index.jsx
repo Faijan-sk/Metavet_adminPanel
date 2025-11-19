@@ -18,7 +18,7 @@ import Typography from '@mui/material/Typography'
 import MuiLink from '@mui/material/Link'
 import Divider from '@mui/material/Divider'
 import PageHeader from 'src/@core/components/page-header'
-// removed unused `useNavigate` import from react-router-dom
+
 
 function Index() {
   const router = useRouter()

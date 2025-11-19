@@ -6,6 +6,7 @@ import jwtDefaultConfig from './jwtDefaultConfig'
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_BASE_URL
 
 export default class JwtService {
+
   // ** jwtConfig <= Will be used by this service
   jwtConfig = { ...jwtDefaultConfig }
 
@@ -180,6 +181,7 @@ export default class JwtService {
         throw err
       })
   }
+  
 //    createDoctor(payload) {
 //   console.log('Calling create doctor API', payload)
 //   return axios.post(this.jwtConfig.createDoctorEndPoint, payload, {
@@ -189,6 +191,7 @@ export default class JwtService {
 //     }
 //   })
 // }
+
 createDoctor(payload) {
 
   return axios.post(this.jwtConfig.createDoctorEndPoint,payload)

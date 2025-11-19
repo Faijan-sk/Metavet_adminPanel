@@ -101,7 +101,7 @@ export default function GroomerToClientDetail() {
             setOpenApproveDialog(false)
         } catch (err) {
             console.error(err)
-            // alert('Failed to approve KYC')
+
         } finally {
             setApproving(false)
         }

@@ -56,10 +56,10 @@ const BehaviouristKycList = ({
     setPage(0)
   }
 
-  // Navigate to behaviourist detail page using uid
+
   const handleView = identifier => {
     if (!identifier) return
-    // Navigate to the behaviourist detail page with uid
+
     router.push(`/kycManagement/metavetToBehaviourist/${encodeURIComponent(identifier)}`)
   }
 

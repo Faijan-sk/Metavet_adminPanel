@@ -56,10 +56,9 @@ const GroomerKycList = ({
         setPage(0)
     }
 
-    // Navigate to detail page. Use uid if present, otherwise fallback to id/email/phone.
     const handleView = identifier => {
         if (!identifier) return
-        // Using dynamic route that matches your folder: pages/kycManagement/metavetToGroomer/[groomerKycId].jsx
+
         router.push(`/kycManagement/metavetToGroomer/${encodeURIComponent(identifier)}`)
     }
 

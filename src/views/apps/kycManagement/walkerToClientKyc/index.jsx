@@ -32,7 +32,6 @@ const DoctorList = ({
                 setLoading(true)
                 setError('')
                 const res = await jwt.getAllKycWalkerToClient()
-                // defensive handling: API might return either { data: [...] } or [...] directly
                 const payload = res?.data ?? res
                 const list = Array.isArray(payload?.data)
                     ? payload.data
@@ -82,7 +81,6 @@ const DoctorList = ({
             })
             .filter(item => {
                 if (!specialityFilterLower) return true
-                // for walker KYC: check petSpecies, preferredWalkType, additionalServices etc.
                 const spec =
                     (item?.pet?.petSpecies || item?.preferredWalkType || item?.additionalServices || '').toString().toLowerCase()
                 return spec.includes(specialityFilterLower)

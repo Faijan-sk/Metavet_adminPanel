@@ -60,7 +60,6 @@ const WalkerKycList = ({
     // Navigate to walker detail page. Use uid if present, otherwise fallback to id/email/phone.
     const handleView = identifier => {
         if (!identifier) return
-        // Matches dynamic route: pages/kycManagement/metavetToWalker/[walkerKycId].jsx
         router.push(`/kycManagement/metavetToWalker/${encodeURIComponent(identifier)}`)
     }
 
