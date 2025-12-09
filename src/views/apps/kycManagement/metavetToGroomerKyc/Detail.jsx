@@ -54,48 +54,6 @@ const formatDate = dateString => {
     }
 }
 
-const makeFileUrl = (fileUrl, kyc = null) => {
-    if (!fileUrl) return null
-    if (/^https?:\/\//i.test(fileUrl)) return fileUrl
-    if (fileUrl.startsWith('/')) {
-        const base = process.env.NEXT_PUBLIC_API_BASE_URL
-        if (base) return `${base.replace(/\/$/, '')}${fileUrl}`
-        if (typeof window !== 'undefined') return `${window.location.origin}${fileUrl}`
-        return fileUrl
-    }
-    const looksLikeWindowsPath = /^[a-zA-Z]:\\|\\\\/.test(fileUrl) || fileUrl.includes('\\')
-    if (looksLikeWindowsPath) {
-        const parts = fileUrl.split(/[/\\]+/)
-        const filename = parts[parts.length - 1] || ''
-        const filenameNoExt = filename.replace(/\.[^/.]+$/, '')
-        const base = process.env.NEXT_PUBLIC_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '')
-        const candidates = []
-        if (base) {
-            if (kyc?.uid) {
-                if (filenameNoExt) candidates.push(`${base.replace(/\/$/, '')}/groomerkyc/uploaded_files/${kyc.uid}/${filenameNoExt}`)
-                if (filename) candidates.push(`${base.replace(/\/$/, '')}/groomerkyc/uploaded_files/${kyc.uid}/${filename}`)
-            }
-            if (filename) candidates.push(`${base.replace(/\/$/, '')}/${filename}`)
-        }
-        return candidates.length ? candidates[0] : null
-    }
-    if (!fileUrl.startsWith('/')) {
-        const base = process.env.NEXT_PUBLIC_API_BASE_URL
-        if (base) return `${base.replace(/\/$/, '')}/${fileUrl.startsWith('/') ? fileUrl.slice(1) : fileUrl}`
-        if (typeof window !== 'undefined') return `${window.location.origin}/${fileUrl}`
-    }
-    return fileUrl
-}
-
-const getFileType = url => {
-    if (!url) return 'unknown'
-    const u = url.split('?')[0]
-    const ext = u.split('.').pop().toLowerCase()
-    if (ext === 'pdf') return 'pdf'
-    if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg'].includes(ext)) return 'image'
-    return 'other'
-}
-
 function InfoRow({ label, value, isBoolean = false }) {
     return (
         <Box sx={{ display: 'flex', mb: 2, alignItems: 'center' }}>
@@ -116,8 +74,9 @@ function InfoRow({ label, value, isBoolean = false }) {
     )
 }
 
-function FileRow({ label, fileUrl, onClick, kyc }) {
-    if (!fileUrl) return null
+// FileRow: docType + click handler
+function FileRow({ label, docType, onClick, kyc }) {
+    if (!kyc?.uid || !docType) return null
 
     return (
         <Box sx={{ display: 'flex', mb: 2, alignItems: 'center' }}>
@@ -125,9 +84,9 @@ function FileRow({ label, fileUrl, onClick, kyc }) {
                 {label}
             </Typography>
             <Button
-                size="small"
+                size='small'
                 startIcon={<AttachFileIcon />}
-                onClick={() => onClick(label, fileUrl)}
+                onClick={() => onClick(label, docType)}
                 sx={{ textTransform: 'none' }}
             >
                 View Document
@@ -147,12 +106,13 @@ export default function MetavetToGroomerDetail({ groomerKycId }) {
     const [rejecting, setRejecting] = useState(false)
 
     const [fileModalOpen, setFileModalOpen] = useState(false)
-    const [fileModalSrc, setFileModalSrc] = useState(null)
-    const [fileModalType, setFileModalType] = useState(null)
+    const [fileModalSrc, setFileModalSrc] = useState(null) // Object URL from blob
+    const [fileModalType, setFileModalType] = useState(null) // 'pdf' | 'image' | 'other'
     const [fileModalLabel, setFileModalLabel] = useState('')
+    const [fileLoading, setFileLoading] = useState(false)
 
     useEffect(() => {
-        console.log("*********************groomerKycId", groomerKycId)
+        console.log('*********************groomerKycId', groomerKycId)
         if (!groomerKycId) {
             setKyc(null)
             setLoading(false)
@@ -184,37 +144,32 @@ export default function MetavetToGroomerDetail({ groomerKycId }) {
         fetchRecord()
     }, [groomerKycId])
 
+    // Cleanup object URL
+    useEffect(() => {
+        return () => {
+            if (fileModalSrc) {
+                URL.revokeObjectURL(fileModalSrc)
+            }
+        }
+    }, [fileModalSrc])
+
     const handleApprove = async () => {
         if (!kyc) return
+
         try {
             setApproving(true)
-            const updateFns = [
-                'updateKycStatus',
-                'updateMetavetToGroomerStatus',
-                'updateGroomerKycStatus',
-                'updateKyc',
-                'approveGroomerKyc'
-            ]
-            let updated = false
-            for (const fnName of updateFns) {
-                if (jwt && typeof jwt[fnName] === 'function') {
-                    try {
-                        await jwt[fnName](kyc.uid ?? kyc.id, 'APPROVED')
-                        updated = true
-                        break
-                    } catch (e) {
-                        // try next
-                    }
-                }
+
+            if (!jwt || typeof jwt.updateMetavetToGroomerKycStatus !== 'function') {
+                throw new Error('API function jwt.updateMetavetToGroomerKycStatus is not available')
             }
-            if (!updated) {
-                throw new Error('Approve API not implemented on jwt (check available functions)')
-            }
+
+            await jwt.updateMetavetToGroomerKycStatus(kyc.uid, 'APPROVED')
+
             setKyc(prev => ({ ...prev, status: 'APPROVED' }))
             setOpenApproveDialog(false)
         } catch (err) {
             console.error(err)
-            alert(err?.message || 'Failed to approve KYC')
+            alert(err?.message || 'Failed to approve Groomer KYC')
         } finally {
             setApproving(false)
         }
@@ -222,56 +177,76 @@ export default function MetavetToGroomerDetail({ groomerKycId }) {
 
     const handleReject = async () => {
         if (!kyc) return
+
         try {
             setRejecting(true)
-            const updateFns = [
-                'updateKycStatus',
-                'updateMetavetToGroomerStatus',
-                'updateGroomerKycStatus',
-                'updateKyc',
-                'rejectGroomerKyc'
-            ]
-            let updated = false
-            for (const fnName of updateFns) {
-                if (jwt && typeof jwt[fnName] === 'function') {
-                    try {
-                        await jwt[fnName](kyc.uid ?? kyc.id, 'REJECTED')
-                        updated = true
-                        break
-                    } catch (e) {
-                        // try next
-                    }
-                }
+
+            if (!jwt || typeof jwt.updateMetavetToGroomerKycStatus !== 'function') {
+                throw new Error('API function jwt.updateMetavetToGroomerKycStatus is not available')
             }
-            if (!updated) {
-                throw new Error('Reject API not implemented on jwt (check available functions)')
-            }
+
+            await jwt.updateMetavetToGroomerKycStatus(kyc.uid, 'REJECTED')
+
             setKyc(prev => ({ ...prev, status: 'REJECTED' }))
             setOpenRejectDialog(false)
         } catch (err) {
             console.error(err)
-            alert(err?.message || 'Failed to reject KYC')
+            alert(err?.message || 'Failed to reject Groomer KYC')
         } finally {
             setRejecting(false)
         }
     }
 
-    const openFileModal = (label, fileUrl) => {
-        const full = makeFileUrl(fileUrl, kyc)
-        if (!full) {
-            alert('Cannot open this file in browser — backend must expose a public URL for this file.')
+    // Document open using jwt.getGroomerDocc → Blob → Object URL
+    const openFileModal = async (label, docType) => {
+        if (!kyc?.uid) {
+            alert('User UID missing, cannot fetch document.')
             return
         }
-        setFileModalSrc(full)
-        setFileModalType(getFileType(full))
-        setFileModalLabel(label)
-        setFileModalOpen(true)
+
+        try {
+            setFileModalLabel(label)
+            setFileModalOpen(true)
+            setFileLoading(true)
+
+            if (fileModalSrc) {
+                URL.revokeObjectURL(fileModalSrc)
+                setFileModalSrc(null)
+            }
+
+            if (!jwt || typeof jwt.getGroomerDocc !== 'function') {
+                throw new Error('API function jwt.getGroomerDocc is not available')
+            }
+
+            // yahan hit hoga:
+            // {{baseUrl}}/groomerkyc/uploaded_files/{uid}/{docType}
+            const blob = await jwt.getGroomerDocc(kyc.uid, docType)
+
+            const objectUrl = URL.createObjectURL(blob)
+            setFileModalSrc(objectUrl)
+
+            const mime = blob?.type || ''
+
+            if (mime === 'application/pdf') {
+                setFileModalType('pdf')
+            } else if (mime.startsWith('image/')) {
+                setFileModalType('image')
+            } else {
+                setFileModalType('pdf')
+            }
+        } catch (err) {
+            console.error(err)
+            alert(err?.message || 'Failed to load document')
+            setFileModalOpen(false)
+        } finally {
+            setFileLoading(false)
+        }
     }
 
     const ownerName = kyc?.fullLegalName || kyc?.businessName || kyc?.email || 'Groomer'
 
     if (loading) return <LinearProgress />
-    if (error) return <Typography color="error">{error}</Typography>
+    if (error) return <Typography color='error'>{error}</Typography>
     if (!kyc) return <Typography>No record found for id: {groomerKycId}</Typography>
 
     return (
@@ -281,13 +256,23 @@ export default function MetavetToGroomerDetail({ groomerKycId }) {
                 <Grid item xs={12}>
                     <Card>
                         <CardContent sx={{ pt: 6, display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-                            <CustomAvatar skin='light' variant='rounded' sx={{ width: 120, height: 120, mb: 3, fontSize: '2.5rem' }}>
+                            <CustomAvatar
+                                skin='light'
+                                variant='rounded'
+                                sx={{ width: 120, height: 120, mb: 3, fontSize: '2.5rem' }}
+                            >
                                 {getInitials(ownerName)}
                             </CustomAvatar>
 
-                            <Typography variant='h4' sx={{ mb: 1, fontWeight: 600 }}>{ownerName}</Typography>
-                            <Typography variant='body1' sx={{ color: 'text.secondary', mb: 1 }}>{kyc?.email || '—'}</Typography>
-                            <Typography variant='body2' sx={{ color: 'text.secondary', mb: 2 }}>{kyc?.phone || '—'}</Typography>
+                            <Typography variant='h4' sx={{ mb: 1, fontWeight: 600 }}>
+                                {ownerName}
+                            </Typography>
+                            <Typography variant='body1' sx={{ color: 'text.secondary', mb: 1 }}>
+                                {kyc?.email || '—'}
+                            </Typography>
+                            <Typography variant='body2' sx={{ color: 'text.secondary', mb: 2 }}>
+                                {kyc?.phone || '—'}
+                            </Typography>
 
                             <CustomChip
                                 rounded
@@ -298,7 +283,7 @@ export default function MetavetToGroomerDetail({ groomerKycId }) {
                                 sx={{ textTransform: 'capitalize', fontWeight: 600 }}
                             />
                         </CardContent>
-                        {/* 
+
                         <CardActions sx={{ display: 'flex', justifyContent: 'center', pb: 4 }}>
                             <Button variant='outlined' onClick={() => router.back()} sx={{ mr: 2 }}>
                                 Back
@@ -320,7 +305,7 @@ export default function MetavetToGroomerDetail({ groomerKycId }) {
                             >
                                 Reject
                             </Button>
-                        </CardActions> */}
+                        </CardActions>
                     </Card>
                 </Grid>
 
@@ -331,13 +316,13 @@ export default function MetavetToGroomerDetail({ groomerKycId }) {
                             <Typography variant='h6' sx={{ mb: 3, fontWeight: 600 }}>
                                 Basic Information
                             </Typography>
-                            <InfoRow label="Full Legal Name" value={showOrDash(kyc?.fullLegalName)} />
-                            <InfoRow label="Business Name" value={showOrDash(kyc?.businessName)} />
-                            <InfoRow label="Email" value={showOrDash(kyc?.email)} />
-                            <InfoRow label="Phone" value={showOrDash(kyc?.phone)} />
-                            <InfoRow label="Address" value={showOrDash(kyc?.address)} />
-                            <InfoRow label="Service Location Type" value={showOrDash(kyc?.serviceLocationType)} />
-                            <InfoRow label="Years of Experience" value={showOrDash(kyc?.yearsExperience)} />
+                            <InfoRow label='Full Legal Name' value={showOrDash(kyc?.fullLegalName)} />
+                            <InfoRow label='Business Name' value={showOrDash(kyc?.businessName)} />
+                            <InfoRow label='Email' value={showOrDash(kyc?.email)} />
+                            <InfoRow label='Phone' value={showOrDash(kyc?.phone)} />
+                            <InfoRow label='Address' value={showOrDash(kyc?.address)} />
+                            <InfoRow label='Service Location Type' value={showOrDash(kyc?.serviceLocationType)} />
+                            <InfoRow label='Years of Experience' value={showOrDash(kyc?.yearsExperience)} />
                         </CardContent>
                     </Card>
                 </Grid>
@@ -349,13 +334,16 @@ export default function MetavetToGroomerDetail({ groomerKycId }) {
                             <Typography variant='h6' sx={{ mb: 3, fontWeight: 600 }}>
                                 Service Details
                             </Typography>
-                            <InfoRow label="Services Offered" value={showOrDash(kyc?.servicesOffered)} />
-                            <InfoRow label="Other Services" value={showOrDash(kyc?.servicesOtherText)} />
-                            <InfoRow label="Service Prices" value={showOrDash(kyc?.servicesPrices)} />
-                            <InfoRow label="Avg Appointment Duration" value={showOrDash(kyc?.averageAppointmentDuration)} />
-                            <InfoRow label="Service Radius" value={showOrDash(kyc?.serviceRadius)} />
-                            <InfoRow label="Created At" value={formatDate(kyc?.createdAt)} />
-                            <InfoRow label="Updated At" value={formatDate(kyc?.updatedAt)} />
+                            <InfoRow label='Services Offered' value={showOrDash(kyc?.servicesOffered)} />
+                            <InfoRow label='Other Services' value={showOrDash(kyc?.servicesOtherText)} />
+                            <InfoRow label='Service Prices' value={showOrDash(kyc?.servicesPrices)} />
+                            <InfoRow
+                                label='Avg Appointment Duration'
+                                value={showOrDash(kyc?.averageAppointmentDuration)}
+                            />
+                            <InfoRow label='Service Radius' value={showOrDash(kyc?.serviceRadius)} />
+                            <InfoRow label='Created At' value={formatDate(kyc?.createdAt)} />
+                            <InfoRow label='Updated At' value={formatDate(kyc?.updatedAt)} />
                         </CardContent>
                     </Card>
                 </Grid>
@@ -368,138 +356,159 @@ export default function MetavetToGroomerDetail({ groomerKycId }) {
                                 Certifications & Documents
                             </Typography>
 
+                            {/* Business License */}
                             <Accordion defaultExpanded>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                     <Typography fontWeight={600}>Business License</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <InfoRow
-                                        label="Has Business License"
+                                        label='Has Business License'
                                         value={showOrDash(kyc?.hasBusinessLicense)}
                                         isBoolean={true}
                                     />
-                                    <FileRow
-                                        label="Business License Document"
-                                        fileUrl={kyc?.businessLicenseFileURL || kyc?.businessLicenseFilePath || kyc?.businessLicenseDoc}
-                                        onClick={openFileModal}
-                                        kyc={kyc}
-                                    />
+                                    {/* ✅ Sirf tab dikhana jab hasBusinessLicense true ho */}
+                                    {kyc?.hasBusinessLicense === true && (
+                                        <FileRow
+                                            label='Business License Document'
+                                            docType='business_license'
+                                            onClick={openFileModal}
+                                            kyc={kyc}
+                                        />
+                                    )}
                                 </AccordionDetails>
                             </Accordion>
 
+                            {/* Grooming Certification */}
                             <Accordion>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                     <Typography fontWeight={600}>Grooming Certification</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <InfoRow
-                                        label="Has Grooming Certificate"
+                                        label='Has Grooming Certificate'
                                         value={showOrDash(kyc?.hasGroomingCert)}
                                         isBoolean={true}
                                     />
-                                    <InfoRow label="Details" value={showOrDash(kyc?.groomingCertDetails)} />
-                                    <FileRow
-                                        label="Grooming Certificate"
-                                        fileUrl={kyc?.groomingCertificateDocURL || kyc?.groomingCertificateDocPath || kyc?.groomingCertificateDoc}
-                                        onClick={openFileModal}
-                                        kyc={kyc}
-                                    />
+                                    <InfoRow label='Details' value={showOrDash(kyc?.groomingCertDetails)} />
+                                    {/* ✅ hasGroomingCert false/null ho to View Document hide */}
+                                    {kyc?.hasGroomingCert === true && (
+                                        <FileRow
+                                            label='Grooming Certificate'
+                                            docType='grooming_certificate'
+                                            onClick={openFileModal}
+                                            kyc={kyc}
+                                        />
+                                    )}
                                 </AccordionDetails>
                             </Accordion>
 
+                            {/* First Aid Certification */}
                             <Accordion>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                     <Typography fontWeight={600}>First Aid Certification</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <InfoRow
-                                        label="Has First Aid Certificate"
+                                        label='Has First Aid Certificate'
                                         value={showOrDash(kyc?.hasFirstAidCert)}
                                         isBoolean={true}
                                     />
-                                    <FileRow
-                                        label="First Aid Certificate"
-                                        fileUrl={kyc?.firstAidCertificateURL || kyc?.firstAidCertificatePath || kyc?.firstAidCertificateDoc}
-                                        onClick={openFileModal}
-                                        kyc={kyc}
-                                    />
+                                    {kyc?.hasFirstAidCert === true && (
+                                        <FileRow
+                                            label='First Aid Certificate'
+                                            docType='first_aid_certificate'
+                                            onClick={openFileModal}
+                                            kyc={kyc}
+                                        />
+                                    )}
                                 </AccordionDetails>
                             </Accordion>
 
+                            {/* Insurance */}
                             <Accordion>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                     <Typography fontWeight={600}>Insurance</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <InfoRow
-                                        label="Has Insurance"
+                                        label='Has Insurance'
                                         value={showOrDash(kyc?.hasInsurance)}
                                         isBoolean={true}
                                     />
-                                    <InfoRow label="Provider" value={showOrDash(kyc?.insuranceProvider)} />
-                                    <InfoRow label="Policy Number" value={showOrDash(kyc?.insurancePolicyNumber)} />
-                                    <InfoRow label="Expiry Date" value={formatDate(kyc?.insuranceExpiry)} />
-                                    <FileRow
-                                        label="Insurance Document"
-                                        fileUrl={kyc?.insuaranceDoccURL || kyc?.insuaranceDoccPath || kyc?.insuranceDoc}
-                                        onClick={openFileModal}
-                                        kyc={kyc}
-                                    />
+                                    <InfoRow label='Provider' value={showOrDash(kyc?.insuranceProvider)} />
+                                    <InfoRow label='Policy Number' value={showOrDash(kyc?.insurancePolicyNumber)} />
+                                    <InfoRow label='Expiry Date' value={formatDate(kyc?.insuranceExpiry)} />
+                                    {kyc?.hasInsurance === true && (
+                                        <FileRow
+                                            label='Insurance Document'
+                                            docType='insurance'
+                                            onClick={openFileModal}
+                                            kyc={kyc}
+                                        />
+                                    )}
                                 </AccordionDetails>
                             </Accordion>
 
+                            {/* Criminal Background Check */}
                             <Accordion>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                     <Typography fontWeight={600}>Criminal Background Check</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <InfoRow
-                                        label="Criminal Check"
+                                        label='Criminal Check'
                                         value={showOrDash(kyc?.criminalCheck)}
                                         isBoolean={true}
                                     />
-                                    <FileRow
-                                        label="Criminal Record Document"
-                                        fileUrl={kyc?.criminalDocURL || kyc?.criminalDocPath || kyc?.crimialRecordDoc}
-                                        onClick={openFileModal}
-                                        kyc={kyc}
-                                    />
+                                    {kyc?.criminalCheck === true && (
+                                        <FileRow
+                                            label='Criminal Record Document'
+                                            docType='criminal_record'
+                                            onClick={openFileModal}
+                                            kyc={kyc}
+                                        />
+                                    )}
                                 </AccordionDetails>
                             </Accordion>
 
+                            {/* Liability Insurance */}
                             <Accordion>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                     <Typography fontWeight={600}>Liability Insurance</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <InfoRow
-                                        label="Has Liability Insurance"
+                                        label='Has Liability Insurance'
                                         value={showOrDash(kyc?.liabilityInsurance)}
                                         isBoolean={true}
                                     />
-                                    <InfoRow label="Provider" value={showOrDash(kyc?.liabilityProvider)} />
-                                    <InfoRow label="Policy Number" value={showOrDash(kyc?.liabilityPolicyNumber)} />
-                                    <InfoRow label="Expiry Date" value={formatDate(kyc?.liabilityExpiry)} />
-                                    <FileRow
-                                        label="Liability Insurance Document"
-                                        fileUrl={kyc?.liabilityDocURL || kyc?.liabilityDocPath || kyc?.liabilityInsuaranceDoc}
-                                        onClick={openFileModal}
-                                        kyc={kyc}
-                                    />
+                                    <InfoRow label='Provider' value={showOrDash(kyc?.liabilityProvider)} />
+                                    <InfoRow label='Policy Number' value={showOrDash(kyc?.liabilityPolicyNumber)} />
+                                    <InfoRow label='Expiry Date' value={formatDate(kyc?.liabilityExpiry)} />
+                                    {kyc?.liabilityInsurance === true && (
+                                        <FileRow
+                                            label='Liability Insurance Document'
+                                            docType='liability_insurance'
+                                            onClick={openFileModal}
+                                            kyc={kyc}
+                                        />
+                                    )}
                                 </AccordionDetails>
                             </Accordion>
 
+                            {/* Incident Policy (no docs) */}
                             <Accordion>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                     <Typography fontWeight={600}>Incident Policy</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <InfoRow
-                                        label="Has Incident Policy"
+                                        label='Has Incident Policy'
                                         value={showOrDash(kyc?.hasIncidentPolicy)}
                                         isBoolean={true}
                                     />
-                                    <InfoRow label="Details" value={showOrDash(kyc?.incidentPolicyDetails)} />
+                                    <InfoRow label='Details' value={showOrDash(kyc?.incidentPolicyDetails)} />
                                 </AccordionDetails>
                             </Accordion>
                         </CardContent>
@@ -514,23 +523,23 @@ export default function MetavetToGroomerDetail({ groomerKycId }) {
                                 Declarations
                             </Typography>
                             <InfoRow
-                                label="Information is Accurate"
+                                label='Information is Accurate'
                                 value={showOrDash(kyc?.declarationAccuracy)}
                                 isBoolean={true}
                             />
                             <InfoRow
-                                label="Consent to Verify"
+                                label='Consent to Verify'
                                 value={showOrDash(kyc?.declarationConsentVerify)}
                                 isBoolean={true}
                             />
                             <InfoRow
-                                label="Will Comply with Terms"
+                                label='Will Comply with Terms'
                                 value={showOrDash(kyc?.declarationComply)}
                                 isBoolean={true}
                             />
                             <Divider sx={{ my: 2 }} />
-                            <InfoRow label="Signature" value={showOrDash(kyc?.signature)} />
-                            <InfoRow label="Signature Date" value={formatDate(kyc?.signatureDate)} />
+                            <InfoRow label='Signature' value={showOrDash(kyc?.signature)} />
+                            <InfoRow label='Signature Date' value={formatDate(kyc?.signatureDate)} />
                         </CardContent>
                     </Card>
                 </Grid>
@@ -545,10 +554,10 @@ export default function MetavetToGroomerDetail({ groomerKycId }) {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenApproveDialog(false)} variant="outlined">
+                    <Button onClick={() => setOpenApproveDialog(false)} variant='outlined'>
                         Cancel
                     </Button>
-                    <Button onClick={handleApprove} disabled={approving} variant="contained" color="success">
+                    <Button onClick={handleApprove} disabled={approving} variant='contained' color='success'>
                         {approving ? 'Approving...' : 'Yes, Approve'}
                     </Button>
                 </DialogActions>
@@ -563,25 +572,33 @@ export default function MetavetToGroomerDetail({ groomerKycId }) {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenRejectDialog(false)} variant="outlined">
+                    <Button onClick={() => setOpenRejectDialog(false)} variant='outlined'>
                         Cancel
                     </Button>
-                    <Button onClick={handleReject} disabled={rejecting} variant="contained" color="error">
+                    <Button onClick={handleReject} disabled={rejecting} variant='contained' color='error'>
                         {rejecting ? 'Rejecting...' : 'Yes, Reject'}
                     </Button>
                 </DialogActions>
             </Dialog>
 
             {/* File Modal */}
-            <Dialog fullWidth maxWidth="lg" open={fileModalOpen} onClose={() => setFileModalOpen(false)}>
+            <Dialog fullWidth maxWidth='lg' open={fileModalOpen} onClose={() => setFileModalOpen(false)}>
                 <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     {fileModalLabel}
                     <IconButton onClick={() => setFileModalOpen(false)}>
                         <CloseIcon />
                     </IconButton>
                 </DialogTitle>
-                <DialogContent sx={{ minHeight: 400, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    {fileModalType === 'pdf' ? (
+                <DialogContent
+                    sx={{ minHeight: 400, display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                >
+                    {fileLoading ? (
+                        <Box sx={{ width: '100%' }}>
+                            <LinearProgress />
+                        </Box>
+                    ) : !fileModalSrc ? (
+                        <Typography>Unable to load document.</Typography>
+                    ) : fileModalType === 'pdf' ? (
                         <iframe
                             title={fileModalLabel}
                             src={fileModalSrc}
@@ -596,10 +613,7 @@ export default function MetavetToGroomerDetail({ groomerKycId }) {
                     ) : (
                         <Box sx={{ textAlign: 'center' }}>
                             <Typography sx={{ mb: 2 }}>Preview not available for this file type.</Typography>
-                            <Button
-                                variant="contained"
-                                onClick={() => window.open(fileModalSrc, '_blank')}
-                            >
+                            <Button variant='contained' onClick={() => window.open(fileModalSrc, '_blank')}>
                                 Open in New Tab
                             </Button>
                         </Box>

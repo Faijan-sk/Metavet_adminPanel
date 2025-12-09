@@ -198,75 +198,55 @@ export default function MetavetToBehaviouristDetail({ behaviouristId }) {
 
     const handleApprove = async () => {
         if (!kyc) return
+
         try {
             setApproving(true)
-            const updateFns = [
-                'updateBehaviouristKycStatus',
-                'updateBehaviouristStatus',
-                'updateKycStatus',
-                'approveBehaviouristKyc',
-                'approveKyc'
-            ]
-            let updated = false
-            for (const fnName of updateFns) {
-                if (jwt && typeof jwt[fnName] === 'function') {
-                    try {
-                        await jwt[fnName](kyc.uid ?? kyc.id, 'APPROVED')
-                        updated = true
-                        break
-                    } catch (e) {
-                        // try next
-                    }
-                }
+
+            if (!jwt || typeof jwt.updateMetavetToBehaviouristKycStatus !== 'function') {
+                throw new Error('API function jwt.updateMetavetToBehaviouristKycStatus is not available')
             }
-            if (!updated) {
-                throw new Error('Approve API not implemented on jwt (check available functions)')
-            }
-            setKyc(prev => ({ ...prev, status: 'APPROVED' }))
+
+            // Backend call: PATCH /behaviouristkyc/uid/{uid}/status?status=APPROVED
+            const res = await jwt.updateMetavetToBehaviouristKycStatus(kyc.uid, 'APPROVED')
+            const updated = res?.data ?? res
+
+            // UI update – backend ka data prefer karo agar mila
+            setKyc(prev => ({ ...(prev || {}), ...(updated || {}), status: 'APPROVED' }))
             setOpenApproveDialog(false)
         } catch (err) {
             console.error(err)
-            alert(err?.message || 'Failed to approve KYC')
+            alert(err?.message || 'Failed to approve Behaviourist KYC')
         } finally {
             setApproving(false)
         }
     }
 
+
     const handleReject = async () => {
         if (!kyc) return
+
         try {
             setRejecting(true)
-            const updateFns = [
-                'updateBehaviouristKycStatus',
-                'updateBehaviouristStatus',
-                'updateKycStatus',
-                'rejectBehaviouristKyc',
-                'rejectKyc'
-            ]
-            let updated = false
-            for (const fnName of updateFns) {
-                if (jwt && typeof jwt[fnName] === 'function') {
-                    try {
-                        await jwt[fnName](kyc.uid ?? kyc.id, 'REJECTED')
-                        updated = true
-                        break
-                    } catch (e) {
-                        // try next
-                    }
-                }
+
+            if (!jwt || typeof jwt.updateMetavetToBehaviouristKycStatus !== 'function') {
+                throw new Error('API function jwt.updateMetavetToBehaviouristKycStatus is not available')
             }
-            if (!updated) {
-                throw new Error('Reject API not implemented on jwt (check available functions)')
-            }
-            setKyc(prev => ({ ...prev, status: 'REJECTED' }))
+
+            // Backend call: PATCH /behaviouristkyc/uid/{uid}/status?status=REJECTED
+            const res = await jwt.updateMetavetToBehaviouristKycStatus(kyc.uid, 'REJECTED')
+            const updated = res?.data ?? res
+
+            // UI update
+            setKyc(prev => ({ ...(prev || {}), ...(updated || {}), status: 'REJECTED' }))
             setOpenRejectDialog(false)
         } catch (err) {
             console.error(err)
-            alert(err?.message || 'Failed to reject KYC')
+            alert(err?.message || 'Failed to reject Behaviourist KYC')
         } finally {
             setRejecting(false)
         }
     }
+
 
     const openFileModal = (label, fileUrl) => {
         const full = makeFileUrl(fileUrl, kyc)
@@ -314,7 +294,7 @@ export default function MetavetToBehaviouristDetail({ behaviouristId }) {
                                 sx={{ textTransform: 'capitalize', fontWeight: 600 }}
                             />
                         </CardContent>
-                        {/* <CardActions sx={{ display: 'flex', justifyContent: 'center', pb: 4 }}>
+                        <CardActions sx={{ display: 'flex', justifyContent: 'center', pb: 4 }}>
                             <Button variant='outlined' onClick={() => router.back()} sx={{ mr: 2 }}>
                                 Back
                             </Button>
@@ -335,7 +315,7 @@ export default function MetavetToBehaviouristDetail({ behaviouristId }) {
                             >
                                 Reject
                             </Button>
-                        </CardActions> */}
+                        </CardActions>
                     </Card>
                 </Grid>
 

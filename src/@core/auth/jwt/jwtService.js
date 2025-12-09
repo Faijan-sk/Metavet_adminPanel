@@ -246,6 +246,45 @@ getMetavetToWalkerKycById(uId) {
       })
   }
 
+updateMetavetToWalkerKycStatus(uId, status) {
+  const endpoint = this.jwtConfig.approveKyMetavetToWalkerEndpoint.replace('{uId}', uId)
+
+  // status must be like: 'APPROVED' | 'REJECTED' | 'PENDING' | 'UNDER_REVIEW'
+  return axios
+    .patch(`${endpoint}?status=${status}`)
+    .then(response => response.data)
+    .catch(error => {
+      console.error('Error updating walker KYC status:', error)
+
+      throw error
+    })
+}
+
+// ✅ Main method: Groomer KYC status update by UID
+updateMetavetToGroomerKycStatus(uId, status) {
+  const endpoint = this.jwtConfig.approveMetavetGroomerKycEndpoint.replace('{uId}', uId)
+
+  return axios
+    .patch(`${endpoint}?status=${status}`) // status: 'APPROVED' | 'REJECTED' | etc.
+    .then(response => response.data)
+    .catch(error => {
+      console.error('Error updating groomer KYC status:', error)
+      throw error
+    })
+}
+
+updateMetavetToBehaviouristKycStatus(uId, status) {
+  const endpoint = this.jwtConfig.approveKyMetavetToBehaviouristEndpoint.replace('{uId}', uId)
+
+  return axios
+    .patch(`${endpoint}?status=${status}`) // status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'UNDER_REVIEW'
+    .then(response => response.data)
+    .catch(error => {
+      console.error('Error updating behaviourist KYC status:', error)
+      throw error
+    })
+}
+
 
 
 
@@ -267,6 +306,34 @@ getMetavetToBehaviouristKycById(uId) {
       })
   }
 
+
+getGroomerDocc(uId, docType) {
+  // Endpoint me placeholders replace karenge
+  const endpoint = this.jwtConfig.getMetaToGroomDocEndpoint
+    .replace('{uid}', uId)
+    .replace('{docType}', docType)
+
+  // File aa rahi hogi, isliye responseType: 'blob' rakha hai
+  return axios
+    .get(endpoint, { responseType: 'blob' })
+    .then(response => response.data) // yaha Blob milega
+    .catch(error => {
+      console.error('Error fetching groomer document:', error)
+      throw error
+    })
+}
+
+updateMetavetToBehaviouristKycStatus(uId, status) {
+  const endpoint = this.jwtConfig.approveKyMetavetToBehaviouristEndpoint.replace('{uId}', uId)
+
+  return axios
+    .patch(`${endpoint}?status=${status}`) // status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'UNDER_REVIEW'
+    .then(response => response.data)
+    .catch(error => {
+      console.error('Error updating behaviourist KYC status:', error)
+      throw error
+    })
+}
 
 
 

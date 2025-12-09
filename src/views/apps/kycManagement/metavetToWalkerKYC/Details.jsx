@@ -185,30 +185,18 @@ export default function MetavetToWalkerDetail({ walkerId }) {
 
     const handleApprove = async () => {
         if (!kyc) return
+
         try {
             setApproving(true)
-            const updateFns = [
-                'updateKycStatus',
-                'updateMetavetToGroomerStatus',
-                'updateGroomerKycStatus',
-                'updateKyc',
-                'approveGroomerKyc'
-            ]
-            let updated = false
-            for (const fnName of updateFns) {
-                if (jwt && typeof jwt[fnName] === 'function') {
-                    try {
-                        await jwt[fnName](kyc.uid ?? kyc.id, 'APPROVED')
-                        updated = true
-                        break
-                    } catch (e) {
-                        // try next
-                    }
-                }
+
+            if (!jwt || typeof jwt.updateMetavetToWalkerKycStatus !== 'function') {
+                throw new Error('API function jwt.updateMetavetToWalkerKycStatus is not available')
             }
-            if (!updated) {
-                throw new Error('Approve API not implemented on jwt (check available functions)')
-            }
+
+            // ✅ Backend call
+            await jwt.updateMetavetToWalkerKycStatus(kyc.uid, 'APPROVED')
+
+            // ✅ UI update
             setKyc(prev => ({ ...prev, status: 'APPROVED' }))
             setOpenApproveDialog(false)
         } catch (err) {
@@ -219,32 +207,21 @@ export default function MetavetToWalkerDetail({ walkerId }) {
         }
     }
 
+
     const handleReject = async () => {
         if (!kyc) return
+
         try {
             setRejecting(true)
-            const updateFns = [
-                'updateKycStatus',
-                'updateMetavetToGroomerStatus',
-                'updateGroomerKycStatus',
-                'updateKyc',
-                'rejectGroomerKyc'
-            ]
-            let updated = false
-            for (const fnName of updateFns) {
-                if (jwt && typeof jwt[fnName] === 'function') {
-                    try {
-                        await jwt[fnName](kyc.uid ?? kyc.id, 'REJECTED')
-                        updated = true
-                        break
-                    } catch (e) {
-                        // try next
-                    }
-                }
+
+            if (!jwt || typeof jwt.updateMetavetToWalkerKycStatus !== 'function') {
+                throw new Error('API function jwt.updateMetavetToWalkerKycStatus is not available')
             }
-            if (!updated) {
-                throw new Error('Reject API not implemented on jwt (check available functions)')
-            }
+
+            // ✅ Backend call
+            await jwt.updateMetavetToWalkerKycStatus(kyc.uid, 'REJECTED')
+
+            // ✅ UI update
             setKyc(prev => ({ ...prev, status: 'REJECTED' }))
             setOpenRejectDialog(false)
         } catch (err) {
@@ -254,6 +231,7 @@ export default function MetavetToWalkerDetail({ walkerId }) {
             setRejecting(false)
         }
     }
+
 
     const openFileModal = (label, fileUrl) => {
         const full = makeFileUrl(fileUrl, kyc)
@@ -298,7 +276,7 @@ export default function MetavetToWalkerDetail({ walkerId }) {
                             />
                         </CardContent>
 
-                        {/* <CardActions sx={{ display: 'flex', justifyContent: 'center', pb: 4 }}>
+                        <CardActions sx={{ display: 'flex', justifyContent: 'center', pb: 4 }}>
                             <Button variant='outlined' onClick={() => router.back()} sx={{ mr: 2 }}>
                                 Back
                             </Button>
@@ -319,7 +297,7 @@ export default function MetavetToWalkerDetail({ walkerId }) {
                             >
                                 Reject
                             </Button>
-                        </CardActions> */}
+                        </CardActions>
                     </Card>
                 </Grid>
 

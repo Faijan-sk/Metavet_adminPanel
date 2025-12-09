@@ -32,15 +32,17 @@ export default {
   //kyc Endpoint 
   metavetToGroomerEndpoint : '/groomerkyc/all',
   metavetToGroomerByUidEndpoint : '/groomerkyc/uid/{uId}',
-
+  approveMetavetGroomerKycEndpoint : '/groomerkyc/uid/{uId}/status',
+  getMetaToGroomDocEndpoint : '/groomerkyc/uploaded_files/{uid}/{docType}',
   
-  metavetToWalkerByUidEndPoint : '/api/walkerkyc/uid/{uId}',
-  metavetToWalkerEndpoint: '/api/walkerkyc/all',
+  metavetToWalkerByUidEndPoint : '/walkerkyc/uid/{uId}',
+  metavetToWalkerEndpoint: '/walkerkyc/all',
+  approveKyMetavetToWalkerEndpoint : '/walkerkyc/uid/{uId}/status',
 
-
-  metavetToBehaviouristEndpoint : '/api/behaviouristkyc/all',
-   metavetToBehaviouristByUidEndPoint : '/api/behaviouristkyc/uid/{uId}',
+  metavetToBehaviouristEndpoint : '/behaviouristkyc/all',
+  metavetToBehaviouristByUidEndPoint : '/behaviouristkyc/uid/{uId}',
   behaviouristToClientEndpoint : '/api/behaviorist-kyc',
+  approveKyMetavetToBehaviouristEndpoint : '/behaviouristkyc/uid/{uId}/status',
 
 
 
