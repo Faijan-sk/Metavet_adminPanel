@@ -323,6 +323,39 @@ getGroomerDocc(uId, docType) {
     })
 }
 
+getWalkerDocc(uId, docType) {
+  // Endpoint me placeholders replace karenge
+  const endpoint = this.jwtConfig.getMetavetToWalkerDocEndPoint
+    .replace('{uid}', uId)
+    .replace('{docType}', docType)
+
+  // File aa rahi hogi, isliye responseType: 'blob' rakha hai
+  return axios
+    .get(endpoint, { responseType: 'blob' })
+    .then(response => response.data) // yaha Blob milega
+    .catch(error => {
+      console.error('Error fetching walker document:', error)
+      throw error
+    })
+}
+
+getBehaviouristDocc(uId, docType) {
+  // Endpoint me placeholders replace karenge
+  const endpoint = this.jwtConfig.getMetavetToBehaviouristrDocEndPoint
+    .replace('{uid}', uId)
+    .replace('{docType}', docType)
+
+  // File aa rahi hogi, isliye responseType: 'blob' rakha hai
+  return axios
+    .get(endpoint, { responseType: 'blob' })
+    .then(response => response.data) // yaha Blob milega
+    .catch(error => {
+      console.error('Error fetching Behaviourist document:', error)
+      throw error
+    })
+}
+
+
 updateMetavetToBehaviouristKycStatus(uId, status) {
   const endpoint = this.jwtConfig.approveKyMetavetToBehaviouristEndpoint.replace('{uId}', uId)
 

@@ -38,12 +38,13 @@ export default {
   metavetToWalkerByUidEndPoint : '/walkerkyc/uid/{uId}',
   metavetToWalkerEndpoint: '/walkerkyc/all',
   approveKyMetavetToWalkerEndpoint : '/walkerkyc/uid/{uId}/status',
+  getMetavetToWalkerDocEndPoint : '/walkerkyc/uploaded_files/{uid}/{docType}',
 
   metavetToBehaviouristEndpoint : '/behaviouristkyc/all',
   metavetToBehaviouristByUidEndPoint : '/behaviouristkyc/uid/{uId}',
   behaviouristToClientEndpoint : '/api/behaviorist-kyc',
   approveKyMetavetToBehaviouristEndpoint : '/behaviouristkyc/uid/{uId}/status',
-
+getMetavetToBehaviouristrDocEndPoint : '/behaviouristkyc/uploaded_files/{uid}/{docType}',
 
 
 
