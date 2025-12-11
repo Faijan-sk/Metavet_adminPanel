@@ -369,6 +369,63 @@ updateMetavetToBehaviouristKycStatus(uId, status) {
 }
 
 
+getGroomerToClientKycById(id) {
+  const endpoint = this.jwtConfig.groomerToClientByUid.replace('{uid}', id)
+
+  return axios
+    .get(endpoint)
+    .then(response => response.data) // yahan se sirf data jaa raha hai
+    .catch(error => {
+      console.error('Error fetching client to Groomer Kyc by ID:', error)
+      throw error
+    })
+}
+getWalkerToClientKycById(id) {
+  const endpoint = this.jwtConfig.walkerToClientByUid.replace('{uid}', id)
+
+  return axios
+    .get(endpoint)
+    .then(response => response.data) // yahan se sirf data jaa raha hai
+    .catch(error => {
+      console.error('Error fetching client to Walker Kyc by ID:', error)
+      throw error
+    })
+}
+getAllKycBihaviouristToClient(){
+  return axios.get(this.jwtConfig.getAllBehaviouristToClientKyc)
+}
+
+updateGroomerKycStatus(uId, status) {
+if (!uId) throw new Error('uId is required')
+if (!status) throw new Error('status is required')
+
+
+const endpoint = this.jwtConfig.updateGroomerKycStatusEndpoint.replace('{uid}', uId)
+
+return axios
+.patch(endpoint, { status })
+.then(response => response.data)
+.catch(error => {
+console.error('Error updating groomer KYC status:', error)
+throw error
+})
+}
+
+updateWalkeToClientKycStatus(uId, status) {
+if (!uId) throw new Error('uId is required')
+if (!status) throw new Error('status is required')
+
+
+const endpoint = this.jwtConfig.updateWalkerToClientKycStatus.replace('{uid}', uId)
+
+return axios
+.patch(endpoint, { status })
+.then(response => response.data)
+.catch(error => {
+console.error('Error updating groomer KYC status:', error)
+throw error
+})
+}
 
 
 }

@@ -32,26 +32,49 @@ const DoctorList = ({
         setLoading(true)
         setError('')
 
-        const res = await (useJwt.getAllKycGroomerToClient ? useJwt.getAllKycGroomerToClient() : useJwt.getAllKycBehaviouristToClient && useJwt.getAllKycBehaviouristToClient())
-        const payload = res?.data ?? res
-        const list = Array.isArray(payload?.data)
-          ? payload.data
-          : Array.isArray(payload)
-            ? payload
-            : Array.isArray(res?.data)
-              ? res.data
-              : []
-        setKycs(list)
+        // 🔹 API call (jo bhi sahi ho, woh use karein)
+        const res =
+          useJwt.getAllKycGroomerToClient
+            ? await useJwt.getAllKycGroomerToClient()
+            : useJwt.getAllKycBehaviouristToClient
+              ? await useJwt.getAllKycBehaviouristToClient()
+              : null
+
+        if (!res) {
+          throw new Error('KYC API function not found in useJwt')
+        }
+
+        // Axios ho to res.data, warna direct res
+        const raw = res?.data ?? res
+
+        // 🔹 yahan ham API ka inner data nikaal rahe hain
+        // raw = { code, data: { totalRecords, records: [...] } }
+        const dataWrapper = raw?.data ?? raw
+
+        const records = Array.isArray(dataWrapper?.records)
+          ? dataWrapper.records
+          : Array.isArray(dataWrapper)
+            ? dataWrapper
+            : []
+
+        // Debug ke liye (browser console me dekh sakte ho)
+        console.log('KYC API raw response:', raw)
+        console.log('KYC records extracted:', records)
+
+        setKycs(records)
       } catch (err) {
+        console.error('Error fetching KYC records:', err)
         setError(err?.message || String(err) || 'Failed to fetch KYC records')
       } finally {
         setLoading(false)
       }
     }
+
     fetchKycs()
   }, [])
 
   const handleChangePage = (event, newPage) => setPage(newPage)
+
   const handleChangeRowsPerPage = event => {
     setRowsPerPage(+event.target.value)
     setPage(0)
@@ -62,7 +85,7 @@ const DoctorList = ({
     if (!id) return
     router.push({
       pathname: '/kycManagement/groomerToClientDetail',
-      query: { id }
+      query: { id },
     })
   }
 
@@ -78,7 +101,11 @@ const DoctorList = ({
         const first = (item?.pet?.owner?.firstName || '').toString().toLowerCase()
         const last = (item?.pet?.owner?.lastName || '').toString().toLowerCase()
         const full = `${first} ${last}`.trim()
-        return first.includes(nameFilterLower) || last.includes(nameFilterLower) || full.includes(nameFilterLower)
+        return (
+          first.includes(nameFilterLower) ||
+          last.includes(nameFilterLower) ||
+          full.includes(nameFilterLower)
+        )
       })
       .filter(item => {
         if (!specialityFilterLower) return true
@@ -96,6 +123,7 @@ const DoctorList = ({
         return status === statusFilterNormalized
       })
 
+    // 🔹 Sort by createdAt/updatedAt (LATEST / OLDEST)
     return filtered.sort((a, b) => {
       const dateA = new Date(a?.updatedAt || a?.createdAt || 0)
       const dateB = new Date(b?.updatedAt || b?.createdAt || 0)
@@ -103,12 +131,15 @@ const DoctorList = ({
     })
   }, [kycs, nameFilterLower, specialityFilterLower, statusFilterNormalized, sortOrder])
 
-  const visibleKycs = filteredKycs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+  const visibleKycs = filteredKycs.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  )
 
   return (
     <>
       <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
-        <Table stickyHeader aria-label="groomer kyc table">
+        <Table stickyHeader aria-label='groomer kyc table'>
           <TableHead>
             <TableRow>
               <TableCell>Owner name</TableCell>
@@ -116,47 +147,72 @@ const DoctorList = ({
               <TableCell>Email</TableCell>
               <TableCell>Pet (Name · Species)</TableCell>
               <TableCell>Status</TableCell>
-              <TableCell align="right">Action</TableCell>
+              <TableCell align='right'>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} align="center">Loading...</TableCell>
+                <TableCell colSpan={6} align='center'>
+                  Loading...
+                </TableCell>
               </TableRow>
             ) : error ? (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ color: 'red' }}>{error}</TableCell>
+                <TableCell colSpan={6} align='center' sx={{ color: 'red' }}>
+                  {error}
+                </TableCell>
               </TableRow>
             ) : filteredKycs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} align="center">No records found</TableCell>
+                <TableCell colSpan={6} align='center'>
+                  No records found
+                </TableCell>
               </TableRow>
             ) : (
               visibleKycs.map(item => {
-                const key = item?.uid || item?.id || item?.petUid || `${item?.pet?.owner?.email || ''}-${item?.pet?.owner?.phoneNumber || ''}`
+                const key =
+                  item?.uid ||
+                  item?.id ||
+                  item?.petUid ||
+                  `${item?.pet?.owner?.email || ''}-${item?.pet?.owner?.phoneNumber || ''
+                  }`
+
                 const ownerFirst = item?.pet?.owner?.firstName || ''
                 const ownerLast = item?.pet?.owner?.lastName || ''
                 const ownerName = `${ownerFirst} ${ownerLast}`.trim() || '—'
+
                 const petName = item?.pet?.petName || item?.pet?.petInfo || '—'
                 const petSpecies = item?.pet?.petSpecies || ''
                 const petCombined = petSpecies ? `${petName} — ${petSpecies}` : petName
+
                 const email = item?.pet?.owner?.email || '—'
-                const phone = item?.pet?.owner?.fullPhoneNumber || `${item?.pet?.owner?.countryCode || ''}${item?.pet?.owner?.phoneNumber || ''}` || '—'
+                const phone =
+                  item?.pet?.owner?.fullPhoneNumber ||
+                  `${item?.pet?.owner?.countryCode || ''}${item?.pet?.owner?.phoneNumber || ''
+                  }` ||
+                  '—'
+
                 const status = item?.status || item?.kycStatus || '—'
 
                 // choose identifier to pass to detail page (prefer uid)
                 const idToSend = item?.uid || item?.id || item?.petUid
 
                 return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={key}>
+                  <TableRow hover role='checkbox' tabIndex={-1} key={key}>
                     <TableCell>{ownerName}</TableCell>
                     <TableCell>{phone}</TableCell>
                     <TableCell>{email}</TableCell>
                     <TableCell>{petCombined}</TableCell>
                     <TableCell>{status}</TableCell>
-                    <TableCell align="right">
-                      <Button variant="text" size="small" onClick={() => handleView(idToSend)}>View</Button>
+                    <TableCell align='right'>
+                      <Button
+                        variant='text'
+                        size='small'
+                        onClick={() => handleView(idToSend)}
+                      >
+                        View
+                      </Button>
                     </TableCell>
                   </TableRow>
                 )
@@ -168,7 +224,7 @@ const DoctorList = ({
 
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
-        component="div"
+        component='div'
         count={filteredKycs.length}
         rowsPerPage={rowsPerPage}
         page={page}
