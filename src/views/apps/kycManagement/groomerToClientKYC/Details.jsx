@@ -108,7 +108,6 @@ export default function GroomerToClientDetail() {
     // utility to pick a reasonable UID for backend (controller expects UID string)
     const getKycUid = () => {
         if (!kyc) return null
-        // backend uses entity.uid (UUID string). Try common fields.
         return kyc.uid || kyc.kycUid || kyc.petUid || kyc.id || null
     }
 

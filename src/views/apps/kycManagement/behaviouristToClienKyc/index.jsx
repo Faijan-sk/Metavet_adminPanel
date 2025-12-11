@@ -23,7 +23,7 @@ const DoctorList = ({
     const [kycs, setKycs] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
-    // const [kycs, setKycs] = use
+
     const router = useRouter()
 
     useEffect(() => {

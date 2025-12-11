@@ -88,7 +88,6 @@ const DoctorList = ({
 
     const filteredKycs = useMemo(() => {
         const filtered = kycs
-            // 🔹 Name filter on owner
             .filter(item => {
                 if (!nameFilterLower) return true
                 const first = (item?.pet?.owner?.firstName || '').toString().toLowerCase()
@@ -100,12 +99,11 @@ const DoctorList = ({
                     full.includes(nameFilterLower)
                 )
             })
-            // 🔹 Speciality filter: species / walk-type / additional services
             .filter(item => {
                 if (!specialityFilterLower) return true
                 const spec = (
                     item?.pet?.petSpecies ||
-                    item?.petSpecies || // top-level field from your response
+                    item?.petSpecies ||
                     item?.preferredWalkType ||
                     item?.additionalServices ||
                     ''
@@ -114,7 +112,7 @@ const DoctorList = ({
                     .toLowerCase()
                 return spec.includes(specialityFilterLower)
             })
-            // 🔹 Status filter
+
             .filter(item => {
                 if (!statusFilterNormalized) return true
                 const status = (item?.status || item?.kycStatus || '').toString()

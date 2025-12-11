@@ -84,7 +84,6 @@ export default function WalkerToClientDetail() {
 
                 // ✅ Directly call UID API
                 const res = await useJwt.getWalkerToClientKycById(id)
-                // res = { code, data, success, message, timestamp }
 
                 const root = res?.code && res?.data ? res : res?.data ?? res
                 const payload = root?.data ?? root

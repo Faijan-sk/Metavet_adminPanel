@@ -483,7 +483,6 @@ export default function MetavetToWalkerDetail({ walkerId }) {
                                 <AccordionDetails>
                                     <InfoRow
                                         label='Has Business License'
-                                        // yahan custom logic: sirf true par "Yes", baaki sab pe "—"
                                         value={kyc?.hasBusinessLicense === true ? 'Yes' : '—'}
                                         isBoolean={true}
                                     />
