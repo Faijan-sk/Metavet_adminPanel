@@ -42,7 +42,7 @@ export default {
 
   metavetToBehaviouristEndpoint : '/behaviouristkyc/all',
   metavetToBehaviouristByUidEndPoint : '/behaviouristkyc/uid/{uId}',
-  behaviouristToClientEndpoint : '/api/behaviorist-kyc',
+  // behaviouristToClientEndpoint : '/api/behaviorist-kyc',
   approveKyMetavetToBehaviouristEndpoint : '/behaviouristkyc/uid/{uId}/status',
 getMetavetToBehaviouristrDocEndPoint : '/behaviouristkyc/uploaded_files/{uid}/{docType}',
 
@@ -58,7 +58,8 @@ updateGroomerKycStatusEndpoint: '/api/groomer-kyc/status/{uid}',
   updateWalkerToClientKycStatus : '/api/walker-kyc/status/{uid}',
 
   getAllBehaviouristToClientKyc : '/api/behaviorist-kyc',
-
+  getClientToBehaviouristEndpointByUid : '/api/behaviorist-kyc/{uid}',
+  updateKycBehaviouristToclient : '/api/behaviorist-kyc/{uid}/status',
 
   
 }

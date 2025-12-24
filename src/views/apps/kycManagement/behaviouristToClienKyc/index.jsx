@@ -36,37 +36,27 @@ const DoctorList = ({
 
                 console.log("response data of api", res.data)
 
-                // 🔹 PARSE STRING RESPONSE IF NEEDED
                 let parsedData = res?.data
 
-                // If res.data is a string, parse it
                 if (typeof res?.data === 'string') {
                     console.log('⚠️ Response is STRING, parsing...')
                     parsedData = JSON.parse(res.data)
                     console.log('✅ Parsed Data:', parsedData)
                 }
 
-                // Now extract records from parsed data
                 let root = null
 
                 if (parsedData?.data?.records) {
                     root = parsedData.data
-                    console.log('✅ Found records in parsedData.data.records')
                 } else if (parsedData?.records) {
                     root = parsedData
-                    console.log('✅ Found records in parsedData.records')
                 } else if (Array.isArray(parsedData?.data)) {
                     root = { records: parsedData.data }
-                    console.log('✅ parsedData.data is array')
                 } else if (Array.isArray(parsedData)) {
                     root = { records: parsedData }
-                    console.log('✅ parsedData is array')
                 }
 
                 const list = Array.isArray(root?.records) ? root.records : []
-
-                console.log('📊 Total Records Found:', list.length)
-                console.log('📋 First Record:', list[0])
 
                 setKycs(list)
             } catch (err) {
@@ -87,15 +77,15 @@ const DoctorList = ({
         setPage(0)
     }
 
+    // ✅ UPDATED: reference-style safe navigation
     const handleView = id => {
         if (!id) return
         router.push({
-            pathname: '/kycManagement/walkerToClientDetail',
+            pathname: '/kycManagement/behaviouristToClientDetail',
             query: { id },
         })
     }
 
-    // Normalize filters
     const nameFilterLower = (nameFilter || '').toString().trim().toLowerCase()
     const specialityFilterLower = (specialityFilter || '').toString().trim().toLowerCase()
     const statusFilterNormalized = (statusFilter || '').toString().trim()
@@ -138,14 +128,6 @@ const DoctorList = ({
 
     return (
         <>
-            {/* Debug Info - Remove in production */}
-            <div style={{ padding: '10px', background: '#f0f0f0', marginBottom: '10px' }}>
-                <strong>Debug Info:</strong> Total Records: {kycs.length} |
-                Filtered: {filteredKycs.length} |
-                Visible: {visibleKycs.length} |
-                Loading: {loading ? 'Yes' : 'No'}
-            </div>
-
             <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
                 <Table stickyHeader aria-label='kyc table'>
                     <TableHead>
@@ -180,6 +162,12 @@ const DoctorList = ({
                             </TableRow>
                         ) : (
                             visibleKycs.map(item => {
+                                const key =
+                                    item?.uid ||
+                                    item?.id ||
+                                    item?.petUid ||
+                                    `${item?.pet?.owner?.email || ''}-${item?.pet?.owner?.fullPhoneNumber || ''}`
+
                                 const ownerFirst = item?.pet?.owner?.firstName || ''
                                 const ownerLast = item?.pet?.owner?.lastName || ''
                                 const ownerName = `${ownerFirst} ${ownerLast}`.trim() || '—'
@@ -190,10 +178,14 @@ const DoctorList = ({
                                 const phone = item?.pet?.owner?.fullPhoneNumber || '—'
                                 const status = item?.kycStatus || '—'
 
-                                const idToSend = item?.uid || item?.id
+                                // ✅ UPDATED: reference-style id resolve
+                                const idToSend =
+                                    item?.uid ||
+                                    item?.id ||
+                                    item?.petUid
 
                                 return (
-                                    <TableRow hover role='checkbox' tabIndex={-1} key={item?.uid || item?.id}>
+                                    <TableRow hover role='checkbox' tabIndex={-1} key={key}>
                                         <TableCell>{ownerName}</TableCell>
                                         <TableCell>{phone}</TableCell>
                                         <TableCell>{email}</TableCell>

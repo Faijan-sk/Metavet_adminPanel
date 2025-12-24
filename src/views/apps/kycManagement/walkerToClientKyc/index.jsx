@@ -119,7 +119,7 @@ const DoctorList = ({
                 return status === statusFilterNormalized
             })
 
-        // 🔹 Sort by createdAt/updatedAt (LATEST / OLDEST)
+
         return filtered.sort((a, b) => {
             const dateA = new Date(a?.updatedAt || a?.createdAt || 0)
             const dateB = new Date(b?.updatedAt || b?.createdAt || 0)

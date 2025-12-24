@@ -428,4 +428,34 @@ throw error
 }
 
 
+getBehaviouristToClientKycById(id) {
+  const endpoint = this.jwtConfig.getClientToBehaviouristEndpointByUid.replace('{uid}', id)
+
+  return axios
+    .get(endpoint)
+    .then(response => response.data) // yahan se sirf data jaa raha hai
+    .catch(error => {
+      console.error('Error fetching client to Behaviourist Kyc by ID:', error)
+      throw error
+    })
+}
+
+updateBehaviouristToClientKycStatus(uId, status) {
+  if (!uId) throw new Error('uId is required')
+  if (!status) throw new Error('status is required')
+
+  const endpoint = this.jwtConfig.updateKycBehaviouristToclient.replace('{uid}', uId)
+
+  return axios
+    .patch(endpoint, { status })   // 👈 BODY me status ja raha hai
+    .then(response => response.data)
+    .catch(error => {
+      console.error('Error updating Behaviourist KYC status:', error)
+      throw error
+    })
+}
+
+
+
+
 }
