@@ -44,6 +44,15 @@ const navigation = () => {
 
     },
     {
+      title: 'Client Mangement',
+      icon: 'tabler:users',
+      path: '/userManagement',
+      action: 'read',
+      subject: 'doctor-management'
+
+    },
+
+    {
       title: 'Pet Mangement',
       icon: 'tabler:dog',
       path: '/apps/petManagement'
