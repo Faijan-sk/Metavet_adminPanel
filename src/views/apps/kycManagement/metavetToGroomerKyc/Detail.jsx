@@ -284,28 +284,6 @@ export default function MetavetToGroomerDetail({ groomerKycId }) {
                             />
                         </CardContent>
 
-                        <CardActions sx={{ display: 'flex', justifyContent: 'center', pb: 4 }}>
-                            <Button variant='outlined' onClick={() => router.back()} sx={{ mr: 2 }}>
-                                Back
-                            </Button>
-                            <Button
-                                variant='contained'
-                                color='success'
-                                sx={{ mr: 2 }}
-                                onClick={() => setOpenApproveDialog(true)}
-                                disabled={kyc?.status === 'APPROVED'}
-                            >
-                                Approve
-                            </Button>
-                            <Button
-                                color='error'
-                                variant='contained'
-                                onClick={() => setOpenRejectDialog(true)}
-                                disabled={kyc?.status === 'REJECTED'}
-                            >
-                                Reject
-                            </Button>
-                        </CardActions>
                     </Card>
                 </Grid>
 
@@ -541,6 +519,31 @@ export default function MetavetToGroomerDetail({ groomerKycId }) {
                             <InfoRow label='Signature' value={showOrDash(kyc?.signature)} />
                             <InfoRow label='Signature Date' value={formatDate(kyc?.signatureDate)} />
                         </CardContent>
+
+
+                        <CardActions sx={{ display: 'flex', justifyContent: 'center', pb: 4 }}>
+                            <Button variant='outlined' onClick={() => router.back()} sx={{ mr: 2 }}>
+                                Back
+                            </Button>
+                            <Button
+                                variant='contained'
+                                color='success'
+                                sx={{ mr: 2 }}
+                                onClick={() => setOpenApproveDialog(true)}
+                                disabled={kyc?.status === 'APPROVED'}
+                            >
+                                Approve
+                            </Button>
+                            <Button
+                                color='error'
+                                variant='contained'
+                                onClick={() => setOpenRejectDialog(true)}
+                                disabled={kyc?.status === 'REJECTED'}
+                            >
+                                Reject
+                            </Button>
+                        </CardActions>
+
                     </Card>
                 </Grid>
             </Grid>

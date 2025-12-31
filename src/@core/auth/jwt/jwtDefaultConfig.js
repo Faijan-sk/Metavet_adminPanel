@@ -49,8 +49,8 @@ getMetavetToBehaviouristrDocEndPoint : '/behaviouristkyc/uploaded_files/{uid}/{d
 
   grommerToClientEndpoint: '/api/groomer-kyc',
   groomerToClientByUid : '/api/groomer-kyc/uid/{uid}',
-updateGroomerKycStatusEndpoint: '/api/groomer-kyc/status/{uid}',
-
+  updateGroomerKycStatusEndpoint: '/api/groomer-kyc/status/{uid}',
+  
 
   walkerToClientEndpoint: '/api/walker-kyc',
   walkerToClientByUid : '/api/walker-kyc/uid/{uid}',
@@ -60,5 +60,6 @@ updateGroomerKycStatusEndpoint: '/api/groomer-kyc/status/{uid}',
   getClientToBehaviouristEndpointByUid : '/api/behaviorist-kyc/{uid}',
   updateKycBehaviouristToclient : '/api/behaviorist-kyc/{uid}/status',
 
+  
   
 }
