@@ -9,7 +9,13 @@ export default {
   loginEndpoint: '/api/auth/admin/login',
   otpVerifyEndPoint: '/auth/otp/verify-otp',
 
-
+/*
+* User Client Endpoint
+*/
+getAllClientEndpoint : '/clients/getAll',
+getClientByUUID : '/clients/by-uid/{uid}',
+deleteClientByUuidEndpoint : '/clients/delete-byuid/{uid}',
+softDeleteClient : '/clients/softDelete/{uid}',
 
   /*
    * Doctor EndPoints

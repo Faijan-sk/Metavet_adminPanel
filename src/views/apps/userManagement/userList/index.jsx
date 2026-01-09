@@ -11,7 +11,12 @@ import TableContainer from '@mui/material/TableContainer'
 import TablePagination from '@mui/material/TablePagination'
 import Button from '@mui/material/Button'
 
-const DoctorList = ({ nameFilter, specialityFilter, statusFilter, sortOrder }) => {
+const DoctorList = ({
+  nameFilter = '',
+  phoneFilter = '',
+  emailFilter = '',
+  sortOrder = 'LATEST'
+}) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [doctors, setDoctors] = useState([])
@@ -24,108 +29,107 @@ const DoctorList = ({ nameFilter, specialityFilter, statusFilter, sortOrder }) =
     const fetchDoctors = async () => {
       try {
         setLoading(true)
-        setError(null)
-        const { data } = await jwt.getAllDoctors()
-        const sortedDoctors = (data.data || []).sort((a, b) => {
-          const dateA = new Date(a.updatedAt || a.createdAt)
-          const dateB = new Date(b.updatedAt || b.createdAt)
-          return dateB - dateA
-        })
-        setDoctors(sortedDoctors)
+        const response = await jwt.getAllClients()
+        const users = response?.data?.data || []
+
+        const filteredUsers = users.filter(user => user.userType === 1)
+        setDoctors(filteredUsers)
       } catch (err) {
-        setError(err.message || 'Failed to fetch doctors')
+        setError(err.message || 'Failed to fetch users')
       } finally {
         setLoading(false)
       }
     }
+
     fetchDoctors()
   }, [])
 
-  const handleChangePage = (event, newPage) => setPage(newPage)
-  const handleChangeRowsPerPage = event => {
-    setRowsPerPage(+event.target.value)
+  // ✅ IMPORTANT FIX: Reset page when filters change
+  useEffect(() => {
     setPage(0)
-  }
+  }, [nameFilter, phoneFilter, emailFilter, sortOrder])
 
-  const handleViewDoctor = doctorId => router.push(`/doctorManagement/doctorProfile/${doctorId}`)
-
-  // ** Apply live filtering and sorting
   const filteredDoctors = doctors
-    .filter(
-      doc =>
-        doc.firstName.toLowerCase().includes(nameFilter.toLowerCase()) ||
-        doc.lastName.toLowerCase().includes(nameFilter.toLowerCase())
-    )
-    .filter(doc => doc.specialization.toLowerCase().includes(specialityFilter.toLowerCase()))
-    .filter(doc => (statusFilter ? doc.doctorProfileStatus === statusFilter : true))
+    .filter(user => {
+      const fullName = `${user.firstName} ${user.lastName}`.toLowerCase()
+      const email = user.email?.toLowerCase() || ''
+      const phone = String(user.phoneNumber || '')
+
+      return (
+        fullName.includes(nameFilter.toLowerCase()) &&
+        email.includes(emailFilter.toLowerCase()) &&
+        phone.includes(phoneFilter)
+      )
+    })
     .sort((a, b) => {
       const dateA = new Date(a.updatedAt || a.createdAt)
       const dateB = new Date(b.updatedAt || b.createdAt)
       return sortOrder === 'LATEST' ? dateB - dateA : dateA - dateB
     })
 
+  const handleViewDoctor = uid => {
+    router.push(`/userManagement/userProfile?uid=${uid}`)
+  }
+
   return (
     <>
       <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
-        <Table stickyHeader aria-label='sticky table'>
+        <Table stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
-              <TableCell>Specialization</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Phone Number</TableCell>
-              <TableCell>Status</TableCell>
               <TableCell align='right'>Action</TableCell>
             </TableRow>
           </TableHead>
+
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} align='center'>
+                <TableCell colSpan={4} align='center'>
                   Loading...
-                </TableCell>
-              </TableRow>
-            ) : error ? (
-              <TableRow>
-                <TableCell colSpan={6} align='center' sx={{ color: 'red' }}>
-                  {error}
                 </TableCell>
               </TableRow>
             ) : filteredDoctors.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} align='center'>
-                  No doctors found
+                <TableCell colSpan={4} align='center'>
+                  No users found
                 </TableCell>
               </TableRow>
             ) : (
-              filteredDoctors.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(doctor => (
-                <TableRow hover role='checkbox' tabIndex={-1} key={doctor.doctorUid}>
-                  <TableCell>
-                    {doctor.firstName} {doctor.lastName}
-                  </TableCell>
-                  <TableCell>{doctor.specialization}</TableCell>
-                  <TableCell>{doctor.email}</TableCell>
-                  <TableCell>{doctor.phoneNumber}</TableCell>
-                  <TableCell>{doctor.doctorProfileStatus}</TableCell>
-                  <TableCell align='right'>
-                    <Button variant='text' size='small' onClick={() => handleViewDoctor(doctor.doctorId)}>
-                      View
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
+              filteredDoctors
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map(user => (
+                  <TableRow hover key={user.uid}>
+                    <TableCell>
+                      {user.firstName} {user.lastName}
+                    </TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.phoneNumber}</TableCell>
+                    <TableCell align='right'>
+                      <Button size='small' onClick={() => handleViewDoctor(user.uid)}>
+                        View
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
             )}
           </TableBody>
         </Table>
       </TableContainer>
+
       <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
         component='div'
         count={filteredDoctors.length}
-        rowsPerPage={rowsPerPage}
         page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+        rowsPerPage={rowsPerPage}
+        onPageChange={(e, newPage) => setPage(newPage)}
+        onRowsPerPageChange={e => {
+          setRowsPerPage(+e.target.value)
+          setPage(0)
+        }}
+        rowsPerPageOptions={[10, 25, 100]}
       />
     </>
   )

@@ -11,22 +11,21 @@ import {
   Button,
   Box
 } from '@mui/material'
+
 import React, { useState } from 'react'
 import { useRouter } from 'next/router'
-import DoctorList from './userList/index'
+import UserList from './userList/index'
 import Typography from '@mui/material/Typography'
 import MuiLink from '@mui/material/Link'
 import Divider from '@mui/material/Divider'
 import PageHeader from 'src/@core/components/page-header'
 
-
 function Index() {
   const router = useRouter()
 
-  // ** Filter states
   const [nameFilter, setNameFilter] = useState('')
-  const [specialityFilter, setSpecialityFilter] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
+  const [phoneFilter, setPhoneFilter] = useState('')
+  const [emailFilter, setEmailFilter] = useState('')
   const [sortOrder, setSortOrder] = useState('LATEST')
 
   return (
@@ -45,37 +44,28 @@ function Index() {
       </Grid>
 
       <Card>
-        {/* Header Row with Title and Approve Button */}
         <CardHeader
           title={
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-            >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography variant='h6'>Client List</Typography>
               <Button
                 variant='contained'
-                sx={{ ml: 2 }}
-                onClick={() => router.push('/doctorManagement/addDoctor/')}
+                onClick={() => router.push('/userManagement/addUser/')}
               >
-                Add Client
+                + Add Client
               </Button>
             </Box>
           }
         />
 
-        {/* Search Filters */}
+        {/* 🔍 Filters */}
         <Grid container spacing={2} sx={{ px: 5, py: 3 }}>
           <Grid item xs={12} sm={6} md={3}>
             <TextField
               fullWidth
+              size='small'
               label='Search by Name'
               placeholder='Enter Client name'
-              variant='outlined'
-              size='small'
               value={nameFilter}
               onChange={e => setNameFilter(e.target.value)}
             />
@@ -84,36 +74,35 @@ function Index() {
           <Grid item xs={12} sm={6} md={3}>
             <TextField
               fullWidth
-              label='Search by Mobile Number'
-              placeholder='Enter Number '
-              variant='outlined'
               size='small'
-              value={specialityFilter}
-              onChange={e => setSpecialityFilter(e.target.value)}
+              label='Search by Email'
+              placeholder='Enter Email ID'
+              value={emailFilter}
+              onChange={e => setEmailFilter(e.target.value)}
             />
           </Grid>
-
 
 
           <Grid item xs={12} sm={6} md={3}>
             <TextField
               fullWidth
-              label='Search by Email'
-              placeholder='Enter Email ID'
-              variant='outlined'
               size='small'
-              value={specialityFilter}
-              onChange={e => setSpecialityFilter(e.target.value)}
+              label='Search by Mobile Number'
+              placeholder='Enter Number'
+              value={phoneFilter}
+              onChange={e => setPhoneFilter(e.target.value)}
             />
           </Grid>
+
+
 
           <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth size='small'>
               <InputLabel>Sort</InputLabel>
               <Select
                 value={sortOrder}
-                onChange={e => setSortOrder(e.target.value)}
                 label='Sort'
+                onChange={e => setSortOrder(e.target.value)}
               >
                 <MenuItem value='LATEST'>Latest</MenuItem>
                 <MenuItem value='OLDEST'>Oldest</MenuItem>
@@ -125,10 +114,10 @@ function Index() {
         <Divider sx={{ m: '0 !important' }} />
 
         <CardContent>
-          <DoctorList
+          <UserList
             nameFilter={nameFilter}
-            specialityFilter={specialityFilter}
-            statusFilter={statusFilter}
+            phoneFilter={phoneFilter}
+            emailFilter={emailFilter}
             sortOrder={sortOrder}
           />
         </CardContent>

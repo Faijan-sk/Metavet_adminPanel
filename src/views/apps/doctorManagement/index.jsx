@@ -61,7 +61,7 @@ function Index() {
                 sx={{ ml: 2 }}
                 onClick={() => router.push('/doctorManagement/addDoctor/')}
               >
-                Approve
+                Add Doctor
               </Button>
             </Box>
           }

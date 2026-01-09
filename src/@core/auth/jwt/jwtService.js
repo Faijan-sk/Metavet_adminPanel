@@ -117,8 +117,37 @@ export default class JwtService {
   // data should be the payload object
   return axios.post(this.jwtConfig.registerEndpoint, data)
 }
-  
 
+getAllClients(){
+  return axios.get(this.jwtConfig.getAllClientEndpoint)
+}
+
+ getClientByUid(clientUid) {
+    const endpoint = this.jwtConfig.getClientByUUID.replace('{uid}', clientUid)
+
+    return axios
+      .get(endpoint)
+      .then(response => response.data)
+      .catch(error => {
+        console.error('Error fetching Client by ID:', error)
+
+        throw error
+      })
+  }
+
+  deleteClientByUid(clientUid) {
+    const endpoint = this.jwtConfig.deleteClientByUuidEndpoint.replace('{uid}', clientUid)
+
+    return axios
+      .get(endpoint)
+      .then(response => response.data)
+      .catch(error => {
+        console.error('Error Deleting Client by ID:', error)
+        throw error
+      })
+  }
+
+  
   verifyOtp(otpData, token) {
     // Use the token passed as parameter (from Redux)
     return axios.post(`${this.jwtConfig.otpVerifyEndPoint}/${token}`, otpData)
@@ -126,6 +155,10 @@ export default class JwtService {
 
   login(...args) {
     return axios.post(this.jwtConfig.loginEndpoint, ...args)
+  }
+
+  softDeleteClient(uuid){
+    return axios.put(this.jwtConfig.softDeleteClient.replace('{uid}' , uuid));
   }
 
   /*
