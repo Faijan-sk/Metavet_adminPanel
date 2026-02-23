@@ -51,14 +51,14 @@ const navigation = () => {
       subject: 'doctor-management'
 
     },
-    {
-      title: 'Metavet Charges',
-      icon: 'tabler:cash-register',
-      path: '/metavet-charges',
-      action: 'read',
-      subject: 'doctor-management'
+    // {
+    //   title: 'Metavet Charges',
+    //   icon: 'tabler:cash-register',
+    //   path: '/metavet-charges',
+    //   action: 'read',
+    //   subject: 'doctor-management'
 
-    },
+    // },
 
     {
       title: 'Pet Mangement',
