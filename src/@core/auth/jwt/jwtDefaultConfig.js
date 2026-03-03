@@ -66,6 +66,8 @@ getMetavetToBehaviouristrDocEndPoint : '/behaviouristkyc/uploaded_files/{uid}/{d
   getClientToBehaviouristEndpointByUid : '/api/behaviorist-kyc/{uid}',
   updateKycBehaviouristToclient : '/api/behaviorist-kyc/{uid}/status',
 
-  
+  //metavet charges 
+  getAllMetavetChargesEndpoint :'/metavet-charge',
+  updateMetavetCharges : '/metavet-charge'
   
 }

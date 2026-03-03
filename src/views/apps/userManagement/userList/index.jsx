@@ -31,10 +31,9 @@ const DoctorList = ({
         setLoading(true)
         const response = await jwt.getAllClients()
         const users = response?.data?.data || []
-
-
-
-        const filteredUsers = users.filter(user => user.userType === 1 && user.deleted != true)
+        const filteredUsers = users.filter(user => user.userType === 1
+          // && user.deleted != true
+        )
         setDoctors(filteredUsers)
       } catch (err) {
         setError(err.message || 'Failed to fetch users')

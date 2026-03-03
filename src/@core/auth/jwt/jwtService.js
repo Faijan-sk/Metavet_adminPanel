@@ -489,6 +489,15 @@ updateBehaviouristToClientKycStatus(uId, status) {
 }
 
 
+getAllMetavetCharges(){
+  return axios.get(this.jwtConfig.getAllMetavetChargesEndpoint)
+}
+
+updateMetvetCharges(payload){
+  return axios.put(this.jwtConfig.updateMetavetCharges,payload)
+}
+
+
 
 
 }

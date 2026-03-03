@@ -3,30 +3,37 @@ import {
     CardContent,
     CardHeader,
     Grid,
-    MenuItem,
-    Select,
-    FormControl,
-    InputLabel,
-    TextField,
-    Button,
     Box
 } from '@mui/material'
 
-import UserList from "./roleList/index"
-import React, { useState } from 'react'
-import { useRouter } from 'next/router'
+import MetavetChargesList from "./roleList/index"
+import React, { useEffect, useState } from 'react'
 import Typography from '@mui/material/Typography'
 import MuiLink from '@mui/material/Link'
 import Divider from '@mui/material/Divider'
 import PageHeader from 'src/@core/components/page-header'
+import useJwt from './../../../enpoints/jwt/useJwt'
 
 function Index() {
-    const router = useRouter()
+    const [charges, setCharges] = useState([])
+    const [loading, setLoading] = useState(true)
 
-    const [nameFilter, setNameFilter] = useState('')
-    const [phoneFilter, setPhoneFilter] = useState('')
-    const [emailFilter, setEmailFilter] = useState('')
-    const [sortOrder, setSortOrder] = useState('LATEST')
+    useEffect(() => {
+        const fetchCharges = async () => {
+            try {
+                setLoading(true)
+                const response = await useJwt.getAllMetavetCharges()
+                const data = response?.data?.data || response?.data || []
+                setCharges(data)
+            } catch (err) {
+                console.error('Failed to fetch charges:', err)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchCharges()
+    }, [])
 
     return (
         <>
@@ -48,26 +55,18 @@ function Index() {
                     title={
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <Typography variant='h6'>Role List</Typography>
-                            {/* <Button
-                                variant='contained'
-                                onClick={() => router.push('/userManagement/addUser/')}
-                            >
-                                + Add Client
-                            </Button> */}
                         </Box>
                     }
                 />
 
-
                 <Divider sx={{ m: '0 !important' }} />
 
                 <CardContent>
-                    <UserList
-                        nameFilter={nameFilter}
-                        phoneFilter={phoneFilter}
-                        emailFilter={emailFilter}
-                        sortOrder={sortOrder}
-                    />
+                    {loading ? (
+                        <Typography align='center'>Loading...</Typography>
+                    ) : (
+                        <MetavetChargesList charges={charges} />
+                    )}
                 </CardContent>
             </Card>
         </>

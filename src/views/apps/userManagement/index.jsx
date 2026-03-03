@@ -34,7 +34,7 @@ function Index() {
         <PageHeader
           title={
             <Typography variant='h5'>
-              <MuiLink href='https://mui.com/material-ui/react-table/' target='_blank'>
+              <MuiLink>
                 Client Management
               </MuiLink>
             </Typography>
