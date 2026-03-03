@@ -32,6 +32,7 @@ const DoctorList = ({
         const response = await jwt.getAllClients()
         const users = response?.data?.data || []
         const filteredUsers = users.filter(user => user.userType === 1
+
           // && user.deleted != true
         )
         setDoctors(filteredUsers)
